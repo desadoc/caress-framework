@@ -72,14 +72,6 @@ function _class:init(_CONFIG, layers)
   self.assetCache = AssetCache.new()
   self.graphicsDevice = classes.Object.GraphicsDevice(tgtWidth, tgtHeight, self.layers)
   self.graphicsDevice:setDefaultFilter("nearest", "nearest", 1)
-
-  love.window.setTitle("hg401")
-  love.graphics.setFont(
-    love.graphics.newImageFont(
-      "assets/fonts/small_imagefont.png",
-      " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,!?-+/():;%&`'*#=[]\""
-    )
-  )
 end
 
 function _class:getMaxScaling()

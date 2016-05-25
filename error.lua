@@ -25,7 +25,7 @@ local _M = {}
 _M.errhand = error
 
 function _M.setErrHandFunction(errhand)
-  _M.errhand = errfunc
+  _M.errhand = errhand
 end
 
 return _M
