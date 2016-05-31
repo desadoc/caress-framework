@@ -29,6 +29,8 @@ local classes     = require("caress/classes")
 
 local AssetCache  = require("caress/AssetCache")
 
+local Input     = classes.Object.Entity.Input
+
 local _class = {}
 
 local CONFIG
@@ -72,6 +74,10 @@ function _class:init(_CONFIG, layers)
   self.assetCache = AssetCache.new()
   self.graphicsDevice = classes.Object.GraphicsDevice(tgtWidth, tgtHeight, self.layers)
   self.graphicsDevice:setDefaultFilter("nearest", "nearest", 1)
+end
+
+function _class:main(coh)
+  self.input = self:create(Input, nil, coh, gamepad)
 end
 
 function _class:getMaxScaling()
