@@ -281,6 +281,8 @@ local function drawSprite(spr, x, y, r, sx, sy)
   )
 end
 
+local SpriteAnimation = classes.Object.Entity.SpriteAnimation
+
 --- Draws animations, sprites or other love.graphics objects like canvases.
 function _class:draw(obj, x, y, color, sx, sy, r)
   color = color or Vector.color(255, 255, 255)
@@ -298,7 +300,7 @@ function _class:draw(obj, x, y, color, sx, sy, r)
   x = x or 0.0
   y = y or 0.0
 
-  if obj.class == classes.Object.FrameAnimation then
+  if obj.class == SpriteAnimation then
     local currAnimation = obj:getCurrentAnimation()
     local currFrame = obj:getCurrentFrame()
 

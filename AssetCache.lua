@@ -71,8 +71,11 @@ end
 
 local processors = {}
 
-function processors.animf(self, aniCfg, ...)
-  return classes.Object.FrameAnimation(aniCfg, self.game, ...)
+function processors.animf(self, aniCfg, parent, layer, coh)
+  return parent:create(
+    classes.Object.Entity.SpriteAnimation,
+    layer, coh, aniCfg
+  )
 end
 
 function processors.sprs(self, sprsSrc, ...)

@@ -14,7 +14,7 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---- A frame based animation class.
+--- A sprite based animation class.
 --
 -- This class implements an animation with frames loaded from images.
 -- The animation is described by an lua file which contains image paths,
@@ -28,11 +28,8 @@
 -- frame. Rect and time may only exist at frame level. Time is optional too,
 -- and it's absence indicates that all frames have equal times and they sum up
 -- to 1 second.
--- 
--- FrameAnimation doesn't have a draw method. It should be passed as parameter
--- to GraphicsDevice's draw.
 --
--- @classmod Object.FrameAnimation
+-- @classmod Object.Entity.SpriteAnimation
 
 --- @usage
 local usage = [[
@@ -75,7 +72,7 @@ local Vector        = require("caress/Vector")
 
 local _class = {}
 
-local pos = Vector.new()
+local position = Vector.new()
 local color = Vector.color(255, 0, 255)
 local elapsedTime = 0.0
 local currentFrame = 1
@@ -86,7 +83,8 @@ local selectedAnimation = nil
 local game
 local graphicsDevice
 
-function _class:init(aniCfg, _game, parent, coh)
+function _class:init(parent, layer, coh, aniCfg)
+  self.super:init(parent, layer, coh)
 
   game = _game
   graphicsDevice = game.graphicsDevice
@@ -112,6 +110,8 @@ function _class:init(aniCfg, _game, parent, coh)
 end
 
 function _class:update(dt)
+  self.super:update(dt)
+  
   if not selectedAnimation then
     return
   end
@@ -138,6 +138,19 @@ function _class:update(dt)
       end
     end
   end
+end
+
+function _class:draw()
+  self.super:draw()
+  graphicsDevice:draw(self, position.x, position.y)
+end
+
+function _class:getPosition()
+  return position
+end
+
+function _class:setPosition(_position)
+  position = Vector.new_cpy(_position)
 end
 
 function _class:getCurrentAnimation()
