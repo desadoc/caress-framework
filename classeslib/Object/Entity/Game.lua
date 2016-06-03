@@ -77,7 +77,7 @@ function _class:init(_CONFIG, layers)
 end
 
 function _class:main(coh)
-  self.input = self:create(Input, nil, coh, gamepad)
+  self.input = self:create(Input, nil, coh, gamepad):start()
 end
 
 function _class:getMaxScaling()

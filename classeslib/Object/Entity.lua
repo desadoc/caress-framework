@@ -75,14 +75,8 @@ function _class:addChild(child)
   return child
 end
 
-function _class:addAndStartChild(child, ...)
-  self:addChild(child)
-  child:start(...)
-  return child
-end
-
 function _class:removeChild(child)
-  children:remove(child)
+  return children:remove(child)
 end
 
 function _class:getChildren()
@@ -251,10 +245,9 @@ function _class:disable()
   self:hide()
 end
 
---- Creates, starts and adds an entity as a child.
+--- Creates and adds an entity as a child.
 function _class:create(class, ...)
   local obj = class(self, ...)
-  obj:start()
   self:addChild(obj)
   return obj
 end
@@ -291,6 +284,7 @@ function _class:start(...)
   if self.main then
     self:runCo(self.main, ...)
   end
+  return self
 end
 
 --- Adds a listener.
