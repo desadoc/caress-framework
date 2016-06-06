@@ -81,7 +81,7 @@ function _class:main(coh)
     return progress > string_len(text)
   end):wait()
 
-  coh:time(0.5):wait()
+  coh:time(0.25):wait()
 
   coh:any(
     coh:keypress(game.input, "a"),
