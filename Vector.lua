@@ -233,6 +233,10 @@ function _M.normalize(v)
   end
 end
 
+function _M.cross2(v1, v2)
+  return v1.x*v2.x + v1.y*v2.y
+end
+
 local _dist_tmp = _M.new()
 
 --- Returns 2-dimensional distance between two vectors (or points).
