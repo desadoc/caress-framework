@@ -133,7 +133,7 @@ function _class:draw()
   local gd = self.graphicsDevice
 
   if gd then
-    gd:clear(Vector.color(255, 0, 255))
+    gd:clear()
   
     gd:clearLayers()
     if not self:isHidden() then

@@ -32,6 +32,7 @@ local size
 local cancelable
 local items
 local columns
+local cursor
 local currSelPos
 
 local game
@@ -39,7 +40,7 @@ local graphicsDevice
 
 function _class:init(parent, layer, coh, params)
   self.super:init(parent, layer, coh)
-  
+
   game = _game
   graphicsDevice = game.graphicsDevice
 
@@ -49,6 +50,8 @@ function _class:init(parent, layer, coh, params)
   cancelable = params.cancelable
   columns = params.columns or 1
   currSelPos = Vector.new(1, 1)
+
+  cursor = params.cursor
 
   local scrWidth, scrHeight = game:getTargetDimensions()
 
@@ -173,30 +176,37 @@ function _class:draw()
   local scrWidth, scrHeight = game:getTargetDimensions()
 
   gd:renderTo(function()
-      gd:origin()
+    gd:origin()
 
-      local items_size = items:size()
+    local items_size = items:size()
 
-      local rowHeight   = size.y/math.ceil(items_size/columns)
-      local cursorWidth = rowHeight
-      local columnWidth = size.x/columns - cursorWidth
+    local rowHeight   = size.y/math.ceil(items_size/columns)
+    local cursorWidth = rowHeight
+    local columnWidth = size.x/columns - cursorWidth
 
-      for i=1,items_size do
+    for i=1,items_size do
 
-        local item_y = math.ceil(i/columns)
-        local item_x = i - (item_y-1)*columns
+      local item_y = math.ceil(i/columns)
+      local item_x = i - (item_y-1)*columns
 
-        local y_ofs = (item_y-1)*rowHeight
-        local x_ofs = (item_x-1)*columnWidth + item_x*cursorWidth
+      local y_ofs = (item_y-1)*rowHeight
+      local x_ofs = (item_x-1)*columnWidth + item_x*cursorWidth
 
-        local selected = 
-          self:getItemAt(currSelPos.x, currSelPos.y) == items:at(i)
+      local selected =
+        self:getItemAt(currSelPos.x, currSelPos.y) == items:at(i)
 
-        gd:rawPrintf(
-          items:at(i).text,
-          pos.x+x_ofs, pos.y+y_ofs, columnWidth, "left")
-      end
+      gd:rawPrintf(
+        items:at(i).text,
+        pos.x+x_ofs, pos.y+y_ofs, columnWidth, "left")
+    end
 
+    if cursor then
+      gd:draw(
+        cursor,
+        pos.x + (currSelPos.x-1)*(columnWidth + cursorWidth) + cursorWidth*0.5,
+        pos.y + (currSelPos.y-1)*rowHeight + cursorWidth*0.2
+        ) 
+    else
       local cursorAABB = Vector.new(
         pos.x + (currSelPos.x-1)*(columnWidth + cursorWidth) + cursorWidth*0.5,
         pos.y + (currSelPos.y-1)*rowHeight + cursorWidth*0.2,
@@ -204,6 +214,7 @@ function _class:draw()
         cursorWidth*0.4
       )
       gd:drawAABB("fill", cursorAABB, Vector.color(255, 255, 255))
+    end
   end, game.layers.interface)
 end
 
