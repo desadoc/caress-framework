@@ -28,6 +28,7 @@ local _class = {}
 
 local pos
 local size
+local textColor
 
 local cancelable
 local items
@@ -59,6 +60,7 @@ function _class:init(parent, layer, coh, params)
 
   pos = params.pos or Vector.new(scrWidth*0.2, scrHeight*0.1)
   size = params.size or Vector.new(scrWidth*0.6, rows*scrHeight*0.1)
+  textColor = params.textColor or Vector.color(255, 255, 255)
 end
 
 function _class:isValidCursorPos(x, y)
@@ -183,6 +185,8 @@ function _class:draw()
     local rowHeight   = size.y/math.ceil(items_size/columns)
     local cursorWidth = rowHeight
     local columnWidth = size.x/columns - cursorWidth
+    
+    gd:setColor(textColor)
 
     for i=1,items_size do
 
@@ -215,7 +219,7 @@ function _class:draw()
       )
       gd:drawAABB("fill", cursorAABB, Vector.color(255, 255, 255))
     end
-  end, game.layers.interface)
+  end, self.layer)
 end
 
 return _class
