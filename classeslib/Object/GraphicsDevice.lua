@@ -126,6 +126,14 @@ end
 
 --- Clears current canvas/layer.
 function _class:clear(bgColor)
+
+  local currCanvas = love.graphics.getCanvas()
+  if currCanvas then
+    bgColor = bgColor or Vector.color(0, 0, 0, 0)
+    currCanvas:clear(bgColor.x, bgColor.y, bgColor.z, bgColor.w)
+    return
+  end
+  
   local _bgColor
 
   if bgColor then
@@ -142,21 +150,22 @@ end
 
 --- Clears all layers.
 function _class:clearLayers()
-  local _canvas = love.graphics.getCanvas()
-  local _bgColor = {love.graphics.getBackgroundColor()}
-  love.graphics.setBackgroundColor(0, 0, 0, 0)
+  local _canvas = self:getCanvas()
+  local _bgColor = self:getBackgroundColor()
+  
   for depth, canvas in pairs(self.canvases) do
-    love.graphics.setCanvas(canvas)
-    love.graphics.clear()
+    self:setCanvas(canvas)
+    self:clear()
   end
-  love.graphics.setBackgroundColor(unpack(_bgColor))
-  love.graphics.setCanvas(_canvas)
+  
+  self:setBackgroundColor(_bgColor)
+  self:setCanvas(_canvas)
 end
 
 --- Switches to 'target' layer then calls 'func'.
 function _class:renderTo(func, target)
   local canvas
-
+  
   if type(target) == "number" then
     canvas = self.canvases[target]
   end
@@ -183,7 +192,8 @@ function _class:flush()
   depthList:sort(nil, "desc")
 
   self:origin()
-
+  self:setColor(Vector.color(255, 255, 255))
+  
   for _, depth in depthList:iterator() do
     love.graphics.draw(self.canvases[depth])
   end
