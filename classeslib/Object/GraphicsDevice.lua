@@ -76,6 +76,10 @@ function _class:setBackgroundColor(color)
   love.graphics.setBackgroundColor(color.x, color.y, color.z, color.w)
 end
 
+function _class:setScissor(x, y, width, height)
+  love.graphics.setScissor(x, y, width, height)
+end
+
 function _class:getFont()
   return love.graphics.getFont()
 end
