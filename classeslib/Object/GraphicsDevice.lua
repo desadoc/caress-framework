@@ -227,7 +227,7 @@ local function drawAABBFill(aabb)
   )
 end
 
-local function _drawAABB(mode, aabb, color, lineWidth)
+local function _drawAABB(mode, aabb, lineWidth)
   if mode == "line" then
     drawAABBLine(aabb, lineWidth)
   end
@@ -236,23 +236,11 @@ local function _drawAABB(mode, aabb, color, lineWidth)
   end
 end
 
-function _class:drawAABB(mode, aabb, color, lineWidth)
-  color = color or Vector.color(255, 0, 255)
-
-  local _color = {love.graphics.getColor()}
-  love.graphics.setColor(color.x, color.y, color.z, color.w)
-
-  _drawAABB(mode, aabb, color, lineWidth)
-
-  love.graphics.setColor(unpack(_color))
+function _class:drawAABB(mode, aabb, lineWidth)
+  _drawAABB(mode, aabb, lineWidth)
 end
 
-function _class:drawAABBList(mode, aabbList, color, lineWidth)
-  color = color or Vector.color(255, 0, 255)
-
-  local _color = {love.graphics.getColor()}
-  love.graphics.setColor(color.x, color.y, color.z, color.w)
-
+function _class:drawAABBList(mode, aabbList, lineWidth)
   local drawFunc
   if mode == "line" then
     drawFunc = drawAABBLine
@@ -264,20 +252,11 @@ function _class:drawAABBList(mode, aabbList, color, lineWidth)
   for _, aabb in aabbList:iterator() do
     drawFunc(aabb, lineWidth)
   end
-
-  love.graphics.setColor(unpack(_color))
 end
 
-function _class:drawCircle(mode, baseX, baseY, radius, color, segments)
-  color = color or Vector.color(255, 0, 255)
+function _class:drawCircle(mode, baseX, baseY, radius, segments)
   segments = segments or 24
-
-  local _color = {love.graphics.getColor()}
-  love.graphics.setColor(color.x, color.y, color.z, color.w)
-
   love.graphics.circle(mode, baseX, baseY+radius, radius, segments)
-
-  love.graphics.setColor(unpack(_color))
 end
 
 local function drawAnimf(anim, x, y, r, sx, sy)
@@ -294,15 +273,10 @@ end
 local SpriteAnimation = classes.Object.Entity.SpriteAnimation
 
 --- Draws animations, sprites or other love.graphics objects like canvases.
-function _class:draw(obj, x, y, color, sx, sy, r)
-  color = color or Vector.color(255, 255, 255)
+function _class:draw(obj, x, y, sx, sy, r)
   sx = sx or 1.0
   sy = sy or 1.0
   r = r or 0.0
-
-  local _color = {love.graphics.getColor()}
-
-  love.graphics.setColor(color.x, color.y, color.z, color.w)
 
   local width = obj:getWidth() * sx
   local height = obj:getHeight() * sy
@@ -323,8 +297,6 @@ function _class:draw(obj, x, y, color, sx, sy, r)
   else
     love.graphics.draw(obj, x, y, r, sx, sy)
   end
-
-  love.graphics.setColor(unpack(_color))
 end
 
 function _class:drawBatch(batch)
