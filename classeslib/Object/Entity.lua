@@ -295,7 +295,7 @@ function _class:on(source, name, listener)
   local _listener = function(...)
     local opt = listener(self, ...)
     if opt ~= "keep" and opt ~= "remove" then
-      error.errhand("Invalid listener return")
+      error.errhand("Invalid listener return '" .. (opt and opt or "nil") .. "'")
     end
     if opt == "remove" then
       self:off(source, name, listener)

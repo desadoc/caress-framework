@@ -110,7 +110,7 @@ local function __emit(self, name, t, evtObj)
   for _, listener in listeners:iterator() do
     opt = listener(evtObj)
     if opt ~= "keep" and opt ~= "remove" then
-      error_errhand("Invalid listener return")
+      error_errhand("Invalid listener return '" .. (opt and opt or "nil") .. "'")
     end
     if opt == "remove" then
       listenersToRemove:push_back(listener)
