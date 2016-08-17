@@ -170,6 +170,7 @@ function _class:main(coh)
   self:on(game.input, "input.keypressed", self.inputEventListener)
   self:on(self, "finished", function(self, event)
     self:off(game.input, "input.keypressed")
+    return "remove"
   end)
 end
 
