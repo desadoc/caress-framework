@@ -174,6 +174,18 @@ function _class:main(coh)
   end)
 end
 
+function _class:getItemOffset(itemIndex)
+  
+  local ofs = Vector.new()
+
+  for i=1,itemIndex do
+    ofs.y = ofs.y + (items:at(i).offset and items:at(i).offset.y or 0)
+    ofs.x = ofs.x + (items:at(i).offset and items:at(i).offset.x or 0)
+  end
+  
+  return ofs
+end
+
 function _class:draw()
   local gd = graphicsDevice
   local scrWidth, scrHeight = game:getTargetDimensions()
@@ -193,9 +205,11 @@ function _class:draw()
 
       local item_y = math.ceil(i/columns)
       local item_x = i - (item_y-1)*columns
+      
+      local extra_ofs = self:getItemOffset(i) 
 
-      local y_ofs = (item_y-1)*rowHeight
-      local x_ofs = (item_x-1)*columnWidth + item_x*cursorWidth
+      local y_ofs = (item_y-1)*rowHeight + extra_ofs.y
+      local x_ofs = (item_x-1)*columnWidth + item_x*cursorWidth + extra_ofs.x
 
       local selected =
         self:getItemAt(currSelPos.x, currSelPos.y) == items:at(i)
@@ -204,17 +218,22 @@ function _class:draw()
         items:at(i).text,
         pos.x+x_ofs, pos.y+y_ofs, columnWidth, "left")
     end
+    
+    local extra_ofs =
+      self:getItemOffset(
+        (currSelPos.y-1)*columns + currSelPos.x
+      )
 
     if cursor then
       gd:draw(
         cursor,
-        pos.x + (currSelPos.x-1)*(columnWidth + cursorWidth) + cursorWidth*0.5,
-        pos.y + (currSelPos.y-1)*rowHeight + cursorWidth*0.2
+        pos.x + (currSelPos.x-1)*(columnWidth + cursorWidth) + cursorWidth*0.5 + extra_ofs.x,
+        pos.y + (currSelPos.y-1)*rowHeight + cursorWidth*0.2 + extra_ofs.y
         ) 
     else
       local cursorAABB = Vector.new(
-        pos.x + (currSelPos.x-1)*(columnWidth + cursorWidth) + cursorWidth*0.5,
-        pos.y + (currSelPos.y-1)*rowHeight + cursorWidth*0.2,
+        pos.x + (currSelPos.x-1)*(columnWidth + cursorWidth) + cursorWidth*0.5 + extra_ofs.x,
+        pos.y + (currSelPos.y-1)*rowHeight + cursorWidth*0.2 + extra_ofs.y,
         cursorWidth*0.4,
         cursorWidth*0.4
       )
