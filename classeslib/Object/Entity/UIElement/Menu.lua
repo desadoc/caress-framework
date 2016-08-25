@@ -19,7 +19,7 @@
 -- Basic menu implementation, currently supports vertical, horizontal and grid
 -- menus.
 --
--- @classmod Object.Entity.UI.Menu
+-- @classmod Object.Entity.UIElement.Menu
 
 local Vector  = require("caress/Vector")
 local List    = require("caress/collection").List

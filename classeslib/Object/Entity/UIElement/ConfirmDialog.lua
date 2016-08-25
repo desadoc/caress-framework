@@ -16,7 +16,7 @@
 
 --- Confirmation Dialog
 --
--- @classmod Object.Entity.UI.ConfirmationDialog
+-- @classmod Object.Entity.UIElement.ConfirmationDialog
 
 local Vector  = require("caress/Vector")
 local List    = require("caress/collection").List

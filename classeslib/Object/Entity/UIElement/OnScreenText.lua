@@ -19,7 +19,7 @@
 -- Text displaying entity suited for info panels and dialogs, it implements a
 -- typing effect.
 --
--- @classmod Object.Entity.UI.OnScreenText
+-- @classmod Object.Entity.UIElement.OnScreenText
 
 local classes = require("caress/classes")
 local text_lib    = require("caress/text")
