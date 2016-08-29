@@ -23,18 +23,113 @@
 
 local Vector  = require("caress/Vector")
 local List    = require("caress/collection").List
+local classes = require("caress/classes")
+
+local TextLine = classes.Object.Entity.UIElement.TextLine
 
 local _class = {}
+_class._static = function()
+  local methods = {}
 
-local pos
-local size
+  methods.columns = {}
+  methods.columns.layout = function(columnCount, columnWidth, rowHeight)
+    local updateFunc = function(menu, items, dt)
+      local menuRect = menu:getRectangle()
+      local column, row
+
+      column = 0
+      row = 1
+
+      for _, item in items:iterator() do
+        column = column + 1
+        if column > columnCount then
+          column = 1
+          row = row + 1
+        end
+
+        item.element:setRectangle(Vector.new(
+          menuRect.x + columnWidth*(column-1) + menu:getCursorDimensions().x,
+          menuRect.y + rowHeight*(row-1),
+          columnWidth,
+          rowHeight
+        ))
+      end
+    end
+
+    return updateFunc
+  end
+
+  methods.columns.navigation = function(columnCount)
+    local updateFunc = function(menu, currItem, items, inputEvent)
+      local key = inputEvent.data.key
+      inputEvent.consumed = true
+
+      local selIndex = 0
+      for _, item in items:iterator() do
+        selIndex = selIndex + 1
+        if currItem == item then
+          break
+        end
+      end
+
+      -- nothing selected
+      if selIndex == 0 then
+        return items:front()
+      end
+
+      if key == "down" then
+        if (selIndex + columnCount) > items:size() then
+          return
+        end
+
+        return items:at(selIndex + columnCount)
+      end
+
+      if key == "up" then
+        if (selIndex - columnCount) <= 0 then
+          return
+        end
+
+        return items:at(selIndex - columnCount)
+      end
+
+      if key == "right" then
+        if (selIndex + 1) > items:size() then
+          return
+        end
+
+        return items:at(selIndex + 1)
+      end
+
+      if key == "left" then
+        if (selIndex - 1) <= 0 then
+          return
+        end
+
+        return items:at(selIndex - 1)
+      end
+    end
+
+    return updateFunc
+  end
+
+  methods.textItem = function(coh, text)
+    return TextLine(nil, nil, coh, text)
+  end
+
+  return methods
+end
+
 local textColor
 
 local cancelable
 local items
-local columns
 local cursor
-local currSelPos
+
+local currItem
+
+local layoutFunc
+local navigationFunc
 
 local game
 local graphicsDevice
@@ -48,125 +143,62 @@ function _class:init(parent, layer, coh, params)
   params = params or {}
 
   items = params.items or List.new()
+
+  for _, item in items:iterator() do
+    item.element.parent = self
+  end
+
+  currItem = not items:is_empty() and items:front()
   cancelable = params.cancelable
-  columns = params.columns or 1
-  currSelPos = Vector.new(1, 1)
 
   cursor = params.cursor
 
+  layoutFunc = params.layout or self.class.columns.layout(1, 960, 16)
+  navigationFunc = params.navigation or self.class.columns.navigation(1)
+
+  textColor = params.textColor or Vector.color(255, 255, 255)
+
   local scrWidth, scrHeight = game:getTargetDimensions()
 
-  local rows = math.ceil(items:size()/columns)
+  local pos = params.pos or Vector.new(scrWidth*0.2, scrHeight*0.1)
+  local size = params.size or Vector.new(scrWidth*0.6, scrHeight*0.8)
 
-  pos = params.pos or Vector.new(scrWidth*0.2, scrHeight*0.1)
-  size = params.size or Vector.new(scrWidth*0.6, rows*scrHeight*0.1)
-  textColor = params.textColor or Vector.color(255, 255, 255)
+  self:setRectangle(Vector.new(pos.x, pos.y, size.x, size.y))
 end
 
-function _class:isValidCursorPos(x, y)
-  if x < 1 or y < 1 then
-    return false
-  end
-
-  if x > columns then
-    return false
-  end
-
-  if y > self:getColumnHeight(x) then
-    return false
-  end
-
-  local itemCount = items:size()
-  return ((y-1)*columns + x) <= itemCount
+function _class:update(dt)
+  layoutFunc(self, items, dt)
 end
 
-function _class:getColumnHeight(i)
-  local completeRows = math.modf(items:size(), columns)
-  local itemsOnIncompleteRow = math.fmod(items:size(), columns)
+function _class:inputEventListener(inputEvent)
+  local key = inputEvent.data.key
 
-  return completeRows + ((i <= itemsOnIncompleteRow) and 1 or 0)
-end
-
-function _class:getRowLength(j)
-  local completeRows = math.modf(items:size(), columns)
-  local itemsOnIncompleteRow = math.fmod(items:size(), columns)
-
-  if j <= completeRows then
-    return columns
-  else
-    return itemsOnIncompleteRow
-  end
-end
-
-function _class:getItemAt(x, y)
-  if not self:isValidCursorPos(x, y) then
-    return nil
-  end
-
-  return items:at(((y-1)*columns + x))
-end
-
-function _class:inputEventListener(event)
-  local key = event.data.key
-
-  if cancelable then
+  if self:isCancelable() then
     if key == "pause" or key == "b" then
       self:emit("finished")
-
-      event.consumed = true
+      return "keep"
     end
-  end
-
-  if key == "down" then
-    if self:isValidCursorPos(currSelPos.x, currSelPos.y+1) then
-      currSelPos.y = currSelPos.y + 1
-    else
-      currSelPos.y = 1
-    end
-
-    event.consumed = true
-  end
-
-  if key == "up" then
-    if self:isValidCursorPos(currSelPos.x, currSelPos.y-1) then
-      currSelPos.y = currSelPos.y - 1
-    else
-      currSelPos.y = self:getColumnHeight(currSelPos.x)
-    end
-
-    event.consumed = true
-  end
-
-  if key == "right" then
-    if self:isValidCursorPos(currSelPos.x+1, currSelPos.y) then
-      currSelPos.x = currSelPos.x + 1
-    else
-      currSelPos.x = 1
-    end
-
-    event.consumed = true
-  end
-
-  if key == "left" then
-    if self:isValidCursorPos(currSelPos.x-1, currSelPos.y) then
-      currSelPos.x = currSelPos.x - 1
-    else
-      currSelPos.x = self:getRowLength(currSelPos.y)
-    end
-
-    event.consumed = true
   end
 
   if key == "a" or key == "menu" then
-    self:emit("selection", self:getItemAt(currSelPos.x, currSelPos.y).data)
+    self:emit("selection", currItem.data)
+    inputEvent.consumed = true
+    return "keep"
+  end
 
-    event.consumed = true
+  local newSelection = navigationFunc(self, currItem, items, inputEvent)
+  if newSelection then
+    currItem = newSelection
   end
 
   return "keep"
 end
 
 function _class:main(coh)
+  for _, item in items:iterator() do
+    item.element:start()
+  end
+
   self:on(game.input, "input.keypressed", self.inputEventListener)
   self:on(self, "finished", function(self, event)
     self:off(game.input, "input.keypressed")
@@ -174,72 +206,54 @@ function _class:main(coh)
   end)
 end
 
-function _class:getItemOffset(itemIndex)
-  
-  local ofs = Vector.new()
-
-  for i=1,itemIndex do
-    ofs.y = ofs.y + (items:at(i).offset and items:at(i).offset.y or 0)
-    ofs.x = ofs.x + (items:at(i).offset and items:at(i).offset.x or 0)
+function _class:getCursorDimensions()
+  if cursor then
+    return Vector.new(cursor:getWidth(), cursor:getHeight())
+  else
+    return Vector.new(12, 12)
   end
-  
-  return ofs
+end
+
+function _class:isCancelable()
+  return cancelable
 end
 
 function _class:draw()
   local gd = graphicsDevice
   local scrWidth, scrHeight = game:getTargetDimensions()
 
-  gd:renderTo(function()
-    gd:origin()
+  gd:origin()
+  gd:setColor(textColor)
 
-    local items_size = items:size()
+  for _, item in items:iterator() do
+    self:drawChild(item.element)
+  end
 
-    local rowHeight   = size.y/math.ceil(items_size/columns)
-    local cursorWidth = rowHeight
-    local columnWidth = size.x/columns - cursorWidth
-    
-    gd:setColor(textColor)
+  local currElement = currItem.element
 
-    for i=1,items_size do
+  local cursorPos = Vector.new(
+    currElement:getPosition().x - self:getCursorDimensions().x,
+    currElement:getPosition().y
+  )  
 
-      local item_y = math.ceil(i/columns)
-      local item_x = i - (item_y-1)*columns
-      
-      local extra_ofs = self:getItemOffset(i) 
-
-      local y_ofs = (item_y-1)*rowHeight + extra_ofs.y
-      local x_ofs = (item_x-1)*columnWidth + item_x*cursorWidth + extra_ofs.x
-
-      local selected =
-        self:getItemAt(currSelPos.x, currSelPos.y) == items:at(i)
-
-      gd:rawPrintf(
-        items:at(i).text,
-        pos.x+x_ofs, pos.y+y_ofs, columnWidth, "left")
-    end
-    
-    local extra_ofs =
-      self:getItemOffset(
-        (currSelPos.y-1)*columns + currSelPos.x
-      )
-
-    if cursor then
-      gd:draw(
-        cursor,
-        pos.x + (currSelPos.x-1)*(columnWidth + cursorWidth) + cursorWidth*0.5 + extra_ofs.x,
-        pos.y + (currSelPos.y-1)*rowHeight + cursorWidth*0.2 + extra_ofs.y
-        ) 
-    else
-      local cursorAABB = Vector.new(
-        pos.x + (currSelPos.x-1)*(columnWidth + cursorWidth) + cursorWidth*0.5 + extra_ofs.x,
-        pos.y + (currSelPos.y-1)*rowHeight + cursorWidth*0.2 + extra_ofs.y,
-        cursorWidth*0.4,
-        cursorWidth*0.4
-      )
-      gd:drawAABB("fill", cursorAABB, Vector.color(255, 255, 255))
-    end
-  end, self.layer)
+  if nil then
+    local yOfs = math.floor((currElement:getSize().y - self:getCursorDimensions().y)/2)
+    gd:draw(
+      cursor,
+      cursorPos.x,
+      cursorPos.y + yOfs
+    )
+  else
+    local actualSize = self:getCursorDimensions().x*0.6
+    local yOfs = math.floor((currElement:getSize().y - actualSize)/2)
+    local cursorAABB = Vector.new(
+      cursorPos.x + (self:getCursorDimensions().x - actualSize)/2,
+      cursorPos.y + yOfs,
+      actualSize,
+      actualSize
+    )
+    gd:drawAABB("fill", cursorAABB)
+  end
 end
 
 return _class

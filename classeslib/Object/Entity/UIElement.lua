@@ -40,4 +40,22 @@ function _class:setRectangle(rect)
   rectangle = Vector.new_cpy(rect)
 end
 
+function _class:getPosition()
+  return Vector.new(rectangle.x, rectangle.y)
+end
+
+function _class:setPosition(pos)
+  rectangle.x = pos.x
+  rectangle.y = pos.y
+end
+
+function _class:getSize()
+  return Vector.new(rectangle.z, rectangle.w)
+end
+
+function _class:setSize(size)
+  rectangle.z = size.x
+  rectangle.w = size.y
+end
+
 return _class
