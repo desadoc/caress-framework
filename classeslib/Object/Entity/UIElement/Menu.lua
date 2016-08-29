@@ -39,6 +39,8 @@ _class._static = function()
 
       column = 0
       row = 1
+      
+      local offset = Vector.new()
 
       for _, item in items:iterator() do
         column = column + 1
@@ -46,10 +48,14 @@ _class._static = function()
           column = 1
           row = row + 1
         end
+        
+        if item.offset then
+          Vector.add(offset, item.offset, offset)
+        end
 
         item.element:setRectangle(Vector.new(
-          menuRect.x + columnWidth*(column-1) + menu:getCursorDimensions().x,
-          menuRect.y + rowHeight*(row-1),
+          menuRect.x + columnWidth*(column-1) + menu:getCursorDimensions().x + offset.x,
+          menuRect.y + rowHeight*(row-1) + offset.y,
           columnWidth,
           rowHeight
         ))
