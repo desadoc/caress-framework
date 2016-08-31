@@ -37,6 +37,10 @@ function _M.exists(filename)
 end
 
 function _M.load(filename)
+  if not lfs.isFile(filename) then
+    return
+  end
+  
   local chunk = lfs.load(filename)
   return chunk()
 end
