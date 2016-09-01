@@ -16,7 +16,16 @@ end
 function _class:draw()
   local gd = game.graphicsDevice
   local yOfs = math.floor((self:getSize().y - game.graphicsDevice:getFont():getHeight())/2)
-  gd:rawPrintf(text, self:getPosition().x, self:getPosition().y + yOfs, 10000, "left")
+  
+  local actualText
+  if type(text) == "string" then
+    actualText = text
+  end
+  if type(text) == "function" then
+    actualText = text()
+  end
+  
+  gd:rawPrintf(actualText, self:getPosition().x, self:getPosition().y + yOfs, 10000, "left")
 end
 
 return _class

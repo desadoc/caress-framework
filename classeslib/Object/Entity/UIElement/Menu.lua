@@ -187,7 +187,14 @@ function _class:inputEventListener(inputEvent)
   end
 
   if key == "a" or key == "menu" then
-    self:emit("selection", currItem.data)
+    local actualData
+    if type(currItem.data) == "function" then
+      actualData = currItem.data()
+    else
+      actualData = currItem.data
+    end
+    
+    self:emit("selection", actualData)
     inputEvent.consumed = true
     return "keep"
   end
