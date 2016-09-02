@@ -14,39 +14,46 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---- TextLine
+--- ImageCursor
 --
--- A UIElement containing a single line of text
---
--- @classmod Object.Entity.UIElement.TextLine
+-- @classmod Object.Entity.UIElement.ImageCursor
+
+local Vector  = require("caress/Vector")
 
 local _class = {}
 
 local game
+local image
 
-local text
+local math_floor = math.floor
 
-function _class:init(parent, layer, coh, _text)
+function _class:init(parent, layer, coh, _image)
   self.super:init(parent, layer, coh)
-
+  
   game = _game
-
-  text = _text
+  image = _image
+  
+  self:setSize(Vector.new(image:getWidth(), image:getHeight()))
+  self:setFused(false)
 end
 
 function _class:draw()
+
   local gd = game.graphicsDevice
-  local yOfs = math.floor((self:getSize().y - game.graphicsDevice:getFont():getHeight())/2)
   
-  local actualText
-  if type(text) == "string" then
-    actualText = text
-  end
-  if type(text) == "function" then
-    actualText = text()
-  end
+  local item = self:getItem()
   
-  gd:rawPrintf(actualText, self:getPosition().x, self:getPosition().y + yOfs, 10000, "left")
+  local pos = Vector.new(
+    item:getPosition().x - self:getSize().x,
+    item:getPosition().y
+  )
+  
+  local yOfs = math_floor((self:getItem():getSize().y - self:getSize().y)/2)
+  gd:draw(
+    image,
+    pos.x,
+    pos.y + yOfs
+  )
 end
 
 return _class

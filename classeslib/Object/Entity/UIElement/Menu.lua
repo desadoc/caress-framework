@@ -25,7 +25,8 @@ local Vector  = require("caress/Vector")
 local List    = require("caress/collection").List
 local classes = require("caress/classes")
 
-local TextLine = classes.Object.Entity.UIElement.TextLine
+local UIElement = classes.Object.Entity.UIElement
+local TextLine  = UIElement.TextLine
 
 local _class = {}
 _class._static = function()
@@ -54,7 +55,7 @@ _class._static = function()
         end
 
         item.element:setRectangle(Vector.new(
-          menuRect.x + columnWidth*(column-1) + menu:getCursorDimensions().x + offset.x,
+          menuRect.x + columnWidth*(column-1) + menu:getCursor():getSize().x + offset.x,
           menuRect.y + rowHeight*(row-1) + offset.y,
           columnWidth,
           rowHeight
@@ -122,6 +123,10 @@ _class._static = function()
   methods.textItem = function(coh, text)
     return TextLine(nil, nil, coh, text)
   end
+  
+  methods.imageCursor = function(coh, imageFilename)
+    return UIElement.Cursor.ImageCursor(nil, nil, coh, _game.assetCache:load(imageFilename))
+  end
 
   return methods
 end
@@ -157,7 +162,10 @@ function _class:init(parent, layer, coh, params)
   currItem = not items:is_empty() and items:front()
   cancelable = params.cancelable
 
-  cursor = params.cursor
+  cursor = params.cursor or UIElement.Cursor.SimpleCursor(nil, nil, coh)
+  
+  cursor.layer = layer
+  cursor.parent = self
 
   layoutFunc = params.layout or self.class.columns.layout(1, 960, 16)
   navigationFunc = params.navigation or self.class.columns.navigation(1)
@@ -174,6 +182,9 @@ end
 
 function _class:update(dt)
   layoutFunc(self, items, dt)
+  cursor:setItem(currItem.element)
+  
+  self.super:update(dt)
 end
 
 function _class:inputEventListener(inputEvent)
@@ -208,6 +219,9 @@ function _class:inputEventListener(inputEvent)
 end
 
 function _class:main(coh)
+
+  cursor:start()
+  
   for _, item in items:iterator() do
     item.element:start()
   end
@@ -219,12 +233,8 @@ function _class:main(coh)
   end)
 end
 
-function _class:getCursorDimensions()
-  if cursor then
-    return Vector.new(cursor:getWidth(), cursor:getHeight())
-  else
-    return Vector.new(12, 12)
-  end
+function _class:getCursor()
+  return cursor
 end
 
 function _class:isCancelable()
@@ -241,32 +251,8 @@ function _class:draw()
   for _, item in items:iterator() do
     self:drawChild(item.element)
   end
-
-  local currElement = currItem.element
-
-  local cursorPos = Vector.new(
-    currElement:getPosition().x - self:getCursorDimensions().x,
-    currElement:getPosition().y
-  )  
-
-  if nil then
-    local yOfs = math.floor((currElement:getSize().y - self:getCursorDimensions().y)/2)
-    gd:draw(
-      cursor,
-      cursorPos.x,
-      cursorPos.y + yOfs
-    )
-  else
-    local actualSize = self:getCursorDimensions().x*0.6
-    local yOfs = math.floor((currElement:getSize().y - actualSize)/2)
-    local cursorAABB = Vector.new(
-      cursorPos.x + (self:getCursorDimensions().x - actualSize)/2,
-      cursorPos.y + yOfs,
-      actualSize,
-      actualSize
-    )
-    gd:drawAABB("fill", cursorAABB)
-  end
+  
+  self:drawChild(cursor)
 end
 
 return _class

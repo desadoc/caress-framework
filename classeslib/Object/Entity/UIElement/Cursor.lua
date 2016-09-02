@@ -14,39 +14,29 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---- TextLine
+--- Cursor
 --
--- A UIElement containing a single line of text
---
--- @classmod Object.Entity.UIElement.TextLine
+-- @classmod Object.Entity.UIElement.Cursor
 
 local _class = {}
 
-local game
+local item
+local fused
 
-local text
-
-function _class:init(parent, layer, coh, _text)
-  self.super:init(parent, layer, coh)
-
-  game = _game
-
-  text = _text
+function _class:setItem(value)
+  item = value
 end
 
-function _class:draw()
-  local gd = game.graphicsDevice
-  local yOfs = math.floor((self:getSize().y - game.graphicsDevice:getFont():getHeight())/2)
-  
-  local actualText
-  if type(text) == "string" then
-    actualText = text
-  end
-  if type(text) == "function" then
-    actualText = text()
-  end
-  
-  gd:rawPrintf(actualText, self:getPosition().x, self:getPosition().y + yOfs, 10000, "left")
+function _class:getItem()
+  return item
+end
+
+function _class:setFused(value)
+  fused = value
+end
+
+function _class:isFused()
+  return fused
 end
 
 return _class

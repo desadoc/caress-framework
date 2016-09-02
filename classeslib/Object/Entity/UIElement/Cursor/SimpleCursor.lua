@@ -14,39 +14,48 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---- TextLine
+--- Cursor
 --
--- A UIElement containing a single line of text
---
--- @classmod Object.Entity.UIElement.TextLine
+-- @classmod Object.Entity.UIElement.Cursor
+
+local Vector  = require("caress/Vector")
 
 local _class = {}
 
 local game
 
-local text
+local math_floor = math.floor
 
-function _class:init(parent, layer, coh, _text)
+function _class:init(parent, layer, coh)
   self.super:init(parent, layer, coh)
 
   game = _game
 
-  text = _text
+  self:setSize(Vector.new(12, 12))
+  self:setFused(false)
 end
 
 function _class:draw()
+
   local gd = game.graphicsDevice
-  local yOfs = math.floor((self:getSize().y - game.graphicsDevice:getFont():getHeight())/2)
+
+  local item = self:getItem()
+
+  local pos = Vector.new(
+    item:getPosition().x - self:getSize().x,
+    item:getPosition().y
+  )
+
+  local actualSize = self:getSize().x*0.6
+  local yOfs = math_floor((item:getSize().y - actualSize)/2)
   
-  local actualText
-  if type(text) == "string" then
-    actualText = text
-  end
-  if type(text) == "function" then
-    actualText = text()
-  end
-  
-  gd:rawPrintf(actualText, self:getPosition().x, self:getPosition().y + yOfs, 10000, "left")
+  local cursorAABB = Vector.new(
+    pos.x + (self:getSize().x - actualSize)/2,
+    pos.y + yOfs,
+    actualSize,
+    actualSize
+  )
+  gd:drawAABB("fill", cursorAABB)
 end
 
 return _class
