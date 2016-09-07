@@ -32,98 +32,132 @@ local _class = {}
 _class._static = function()
   local methods = {}
 
-  methods.columns = {}
-  methods.columns.layout = function(columnCount, columnWidth, rowHeight)
-    local updateFunc = function(menu, items, dt)
-      local menuRect = menu:getRectangle()
-      local column, row
+  methods.gridLayout = function(horizontal, columnCount, columnWidth, rowCount, rowHeight)
+    local _new = {
+      update = function(self, items)
 
-      column = 0
-      row = 1
-      
-      local offset = Vector.new()
-
-      for _, item in items:iterator() do
-        column = column + 1
-        if column > columnCount then
-          column = 1
-          row = row + 1
+        if horizontal then
+          columnCount = columnCount or 4
+        else
+          rowCount = rowCount or 6
         end
         
-        if item.offset then
-          Vector.add(offset, item.offset, offset)
+        columnWidth = columnWidth or 360
+        rowHeight = rowHeight or 60
+
+        self.grid = {}
+
+        local column, row = 1, 1
+        local offset = Vector.new()
+
+        local origin = self.parent:getPosition()
+
+        for _, item in items:iterator() do
+          
+          if item.itemParams.offset then
+            Vector.add(offset, item.itemParams.offset, offset)
+          end
+          
+          item:setRectangle(Vector.new(
+            origin.x + (column-1)*columnWidth + offset.x,
+            origin.y + (row-1)*rowHeight + offset.y,
+            columnWidth,
+            rowHeight
+          ))
+
+          if not self.grid[column] then
+            self.grid[column] = {}
+          end
+
+          self.grid[column][row] = item
+
+          if horizontal then
+            column = column + 1
+            if column > columnCount then
+              column = 1
+              row = row + 1
+            end
+          else
+            row = row + 1
+            if row > rowCount then
+              row = 1
+              column = column + 1
+            end
+          end
         end
 
-        item.element:setRectangle(Vector.new(
-          menuRect.x + columnWidth*(column-1) + menu:getCursor():getSize().x + offset.x,
-          menuRect.y + rowHeight*(row-1) + offset.y,
-          columnWidth,
-          rowHeight
-        ))
-      end
-    end
-
-    return updateFunc
-  end
-
-  methods.columns.navigation = function(columnCount)
-    local updateFunc = function(menu, currItem, items, inputEvent)
-      local key = inputEvent.data.key
-      inputEvent.consumed = true
-
-      local selIndex = 0
-      for _, item in items:iterator() do
-        selIndex = selIndex + 1
-        if currItem == item then
-          break
+        if horizontal then
+          self.width = columnCount
+          self.height = math.ceil(items:size()/columnCount)
+        else
+          self.width = math.ceil(items:size()/rowCount)
+          self.height = rowCount
         end
-      end
-
-      -- nothing selected
-      if selIndex == 0 then
-        return items:front()
-      end
-
-      if key == "down" then
-        if (selIndex + columnCount) > items:size() then
-          return
+      end,
+      navigate = function(self, cursorState, direction)
+        if not cursorState then
+          return {item = self.grid[1][1], pos = Vector.new(1, 1)}
         end
 
-        return items:at(selIndex + columnCount)
-      end
+        local pos = Vector.new_cpy(cursorState.pos)
 
-      if key == "up" then
-        if (selIndex - columnCount) <= 0 then
-          return
+        local gridIter
+
+        if direction == "right" then
+          gridIter = function(pos)
+            pos.x = pos.x + 1
+            if pos.x > self.width then
+              pos.x = 1
+            end
+          end
         end
 
-        return items:at(selIndex - columnCount)
-      end
-
-      if key == "right" then
-        if (selIndex + 1) > items:size() then
-          return
+        if direction == "left" then
+          gridIter = function(pos)
+            pos.x = pos.x - 1
+            if pos.x < 1 then
+              pos.x = self.width
+            end
+          end
         end
 
-        return items:at(selIndex + 1)
-      end
-
-      if key == "left" then
-        if (selIndex - 1) <= 0 then
-          return
+        if direction == "up" then
+          gridIter = function(pos)
+            pos.y = pos.y - 1
+            if pos.y < 1 then
+              pos.y = self.height
+            end
+          end
         end
 
-        return items:at(selIndex - 1)
-      end
-    end
+        if direction == "down" then
+          gridIter = function(pos)
+            pos.y = pos.y + 1
+            if pos.y > self.height then
+              pos.y = 1
+            end
+          end
+        end
 
-    return updateFunc
+        if not gridIter then return cursorState end
+
+        while true do
+          gridIter(pos)
+          local item = self.grid[pos.x][pos.y]
+          if item then
+            return {item = item, pos = Vector.new_cpy(pos)}
+          end
+        end
+      end
+    }
+
+    return _new
   end
 
   methods.textItem = function(coh, text)
     return TextLine(nil, nil, coh, text)
   end
-  
+
   methods.imageCursor = function(coh, imageFilename)
     return UIElement.Cursor.ImageCursor(nil, nil, coh, _game.assetCache:load(imageFilename))
   end
@@ -137,9 +171,9 @@ local cancelable
 local items
 local cursor
 
-local currItem
+local cursorState
 
-local layoutFunc
+local layout
 local navigationFunc
 
 local game
@@ -153,38 +187,30 @@ function _class:init(parent, layer, coh, params)
 
   params = params or {}
 
-  items = params.items or List.new()
-
-  for _, item in items:iterator() do
-    item.element.parent = self
-  end
-
-  currItem = not items:is_empty() and items:front()
   cancelable = params.cancelable
-
-  cursor = params.cursor or UIElement.Cursor.SimpleCursor(nil, nil, coh)
-  
-  cursor.layer = layer
-  cursor.parent = self
-
-  layoutFunc = params.layout or self.class.columns.layout(1, 960, 16)
-  navigationFunc = params.navigation or self.class.columns.navigation(1)
-
-  textColor = params.textColor or Vector.color(255, 255, 255)
 
   local scrWidth, scrHeight = game:getTargetDimensions()
 
   local pos = params.pos or Vector.new(scrWidth*0.2, scrHeight*0.1)
   local size = params.size or Vector.new(scrWidth*0.6, scrHeight*0.8)
-
   self:setRectangle(Vector.new(pos.x, pos.y, size.x, size.y))
-end
 
-function _class:update(dt)
-  layoutFunc(self, items, dt)
-  cursor:setItem(currItem.element)
-  
-  self.super:update(dt)
+  textColor = params.textColor or Vector.color(255, 255, 255)
+
+  cursor = params.cursor or UIElement.Cursor.SimpleCursor(nil, nil, coh)
+  cursor.parent = self
+
+  items = List.new()
+
+  for _, item in params.items:iterator() do
+    items:push_back(self:create(UIElement.MenuItem, nil, coh, item))
+  end
+
+  layout = params.layout or self.class.gridLayout(true, 2, 360, nil, 60)
+  layout.parent = self
+
+  layout:update(items)
+  cursorState = layout:navigate()
 end
 
 function _class:inputEventListener(inputEvent)
@@ -198,22 +224,20 @@ function _class:inputEventListener(inputEvent)
   end
 
   if key == "a" or key == "menu" then
+    local data = cursorState.item:getData()
     local actualData
-    if type(currItem.data) == "function" then
-      actualData = currItem.data()
+    if type(data) == "function" then
+      actualData = data()
     else
-      actualData = currItem.data
+      actualData = data
     end
-    
+
     self:emit("selection", actualData)
     inputEvent.consumed = true
     return "keep"
   end
 
-  local newSelection = navigationFunc(self, currItem, items, inputEvent)
-  if newSelection then
-    currItem = newSelection
-  end
+  cursorState = layout:navigate(cursorState, key)
 
   return "keep"
 end
@@ -221,9 +245,9 @@ end
 function _class:main(coh)
 
   cursor:start()
-  
+
   for _, item in items:iterator() do
-    item.element:start()
+    item:start()
   end
 
   self:on(game.input, "input.keypressed", self.inputEventListener)
@@ -241,6 +265,11 @@ function _class:isCancelable()
   return cancelable
 end
 
+function _class:update(dt)
+  cursor:setItem(cursorState.item)
+  self.super:update(dt)
+end
+
 function _class:draw()
   local gd = graphicsDevice
   local scrWidth, scrHeight = game:getTargetDimensions()
@@ -249,9 +278,9 @@ function _class:draw()
   gd:setColor(textColor)
 
   for _, item in items:iterator() do
-    self:drawChild(item.element)
+    self:drawChild(item)
   end
-  
+
   self:drawChild(cursor)
 end
 

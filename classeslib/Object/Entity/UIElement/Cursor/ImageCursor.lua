@@ -25,7 +25,7 @@ local _class = {}
 local game
 local image
 
-local math_floor = math.floor
+local math_ceil = math.ceil
 
 function _class:init(parent, layer, coh, _image)
   self.super:init(parent, layer, coh)
@@ -34,21 +34,17 @@ function _class:init(parent, layer, coh, _image)
   image = _image
   
   self:setSize(Vector.new(image:getWidth(), image:getHeight()))
-  self:setFused(false)
+  
+  self:setFusedOnX(false)
+  self:setFusedOnY(true)
 end
 
 function _class:draw()
 
   local gd = game.graphicsDevice
+  local pos = self:getItem():getPosition()
   
-  local item = self:getItem()
-  
-  local pos = Vector.new(
-    item:getPosition().x - self:getSize().x,
-    item:getPosition().y
-  )
-  
-  local yOfs = math_floor((self:getItem():getSize().y - self:getSize().y)/2)
+  local yOfs = math_ceil((self:getItem():getSize().y - self:getSize().y)/2)
   gd:draw(
     image,
     pos.x,

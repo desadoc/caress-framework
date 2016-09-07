@@ -22,6 +22,8 @@
 
 local _class = {}
 
+local Vector  = require("caress/Vector")
+
 local game
 
 local text
@@ -32,11 +34,12 @@ function _class:init(parent, layer, coh, _text)
   game = _game
 
   text = _text
+  
+  self:setSize(Vector.new(0, game.graphicsDevice:getFont():getHeight()))
 end
 
 function _class:draw()
   local gd = game.graphicsDevice
-  local yOfs = math.floor((self:getSize().y - game.graphicsDevice:getFont():getHeight())/2)
   
   local actualText
   if type(text) == "string" then
@@ -46,7 +49,7 @@ function _class:draw()
     actualText = text()
   end
   
-  gd:rawPrintf(actualText, self:getPosition().x, self:getPosition().y + yOfs, 10000, "left")
+  gd:rawPrintf(actualText, self:getPosition().x, self:getPosition().y, 10000, "left")
 end
 
 return _class

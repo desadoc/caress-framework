@@ -21,7 +21,8 @@
 local _class = {}
 
 local item
-local fused
+local fusedOnX
+local fusedOnY
 
 function _class:setItem(value)
   item = value
@@ -31,12 +32,20 @@ function _class:getItem()
   return item
 end
 
-function _class:setFused(value)
-  fused = value
+function _class:setFusedOnX(value)
+  fusedOnX = value
 end
 
-function _class:isFused()
-  return fused
+function _class:isFusedOnX()
+  return fusedOnX
+end
+
+function _class:setFusedOnY(value)
+  fusedOnY = value
+end
+
+function _class:isFusedOnY()
+  return fusedOnY
 end
 
 return _class

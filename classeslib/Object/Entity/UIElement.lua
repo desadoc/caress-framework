@@ -25,6 +25,7 @@ local Vector  = require("caress/Vector")
 local _class = {}
 
 local rectangle
+local layout
 
 function _class:init(parent, layer, coh)
   self.super:init(parent, layer, coh)
@@ -56,6 +57,14 @@ end
 function _class:setSize(size)
   rectangle.z = size.x
   rectangle.w = size.y
+end
+
+function _class:setLayout(_layout)
+  layout = _layout
+end
+
+function _class:getLayout()
+  return layout
 end
 
 return _class
