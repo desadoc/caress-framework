@@ -171,10 +171,10 @@ local cancelable
 local items
 local cursor
 
+local navigationSuspended
 local cursorState
 
 local layout
-local navigationFunc
 
 local game
 local graphicsDevice
@@ -215,10 +215,12 @@ end
 
 function _class:inputEventListener(inputEvent)
   local key = inputEvent.data.key
+  
+  if navigationSuspended then return "keep" end
 
   if self:isCancelable() then
     if key == "pause" or key == "b" then
-      self:emit("finished")
+      self:emit("canceled")
       return "keep"
     end
   end
@@ -237,7 +239,15 @@ function _class:inputEventListener(inputEvent)
     return "keep"
   end
 
+  if cursorState and cursorState.item then
+    cursorState.item:setHasCursor(false)
+  end
+  
   cursorState = layout:navigate(cursorState, key)
+  
+  if cursorState and cursorState.item then
+    cursorState.item:setHasCursor(true)
+  end
 
   return "keep"
 end
@@ -259,6 +269,30 @@ end
 
 function _class:getCursor()
   return cursor
+end
+
+function _class:hideCursor()
+  cursor:hide()
+  
+  if cursorState and cursorState.item then
+    cursorState.item:setHasCursor(false)
+  end
+end
+
+function _class:showCursor()
+  cursor:show()
+  
+  if cursorState and cursorState.item then
+    cursorState.item:setHasCursor(true)
+  end
+end
+
+function _class:suspendNavigation()
+  navigationSuspended = true
+end
+
+function _class:resumeNavigation()
+  navigationSuspended = false
 end
 
 function _class:isCancelable()

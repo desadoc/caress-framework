@@ -26,6 +26,7 @@ local _class = {}
 
 local rectangle
 local layout
+local hasCursor
 
 function _class:init(parent, layer, coh)
   self.super:init(parent, layer, coh)
@@ -65,6 +66,14 @@ end
 
 function _class:getLayout()
   return layout
+end
+
+function _class:setHasCursor(value)
+  hasCursor = value
+end
+
+function _class:hasCursor()
+  return hasCursor
 end
 
 return _class

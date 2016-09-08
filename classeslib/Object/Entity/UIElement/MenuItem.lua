@@ -36,6 +36,8 @@ function _class:init(parent, layer, coh, _item)
   innerElement = _item.element
   data = _item.data
   self.itemParams = _item
+  
+  innerElement.parent = self
 end
 
 function _class:main(coh)
@@ -63,6 +65,11 @@ function _class:update(dt)
 
   innerElement:setPosition(Vector.new(x, y + yOfs))
   innerElement:update(dt)
+end
+
+function _class:setHasCursor(value)
+  self.super:setHasCursor(value)
+  innerElement:setHasCursor(value)
 end
 
 function _class:draw()
