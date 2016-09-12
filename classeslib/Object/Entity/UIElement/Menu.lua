@@ -41,11 +41,23 @@ _class._static = function()
         else
           rowCount = rowCount or 6
         end
-        
+
         columnWidth = columnWidth or 360
         rowHeight = rowHeight or 60
 
         self.grid = {}
+        
+        if horizontal then
+          self.width = columnCount
+          self.height = math.ceil(items:size()/columnCount)
+        else
+          self.width = math.ceil(items:size()/rowCount)
+          self.height = rowCount
+        end
+        
+        for i=1,self.width do
+          self.grid[i] = {}
+        end
 
         local column, row = 1, 1
         local offset = Vector.new()
@@ -53,21 +65,17 @@ _class._static = function()
         local origin = self.parent:getPosition()
 
         for _, item in items:iterator() do
-          
+
           if item.itemParams.offset then
             Vector.add(offset, item.itemParams.offset, offset)
           end
-          
+
           item:setRectangle(Vector.new(
             origin.x + (column-1)*columnWidth + offset.x,
             origin.y + (row-1)*rowHeight + offset.y,
             columnWidth,
             rowHeight
           ))
-
-          if not self.grid[column] then
-            self.grid[column] = {}
-          end
 
           self.grid[column][row] = item
 
@@ -84,14 +92,6 @@ _class._static = function()
               column = column + 1
             end
           end
-        end
-
-        if horizontal then
-          self.width = columnCount
-          self.height = math.ceil(items:size()/columnCount)
-        else
-          self.width = math.ceil(items:size()/rowCount)
-          self.height = rowCount
         end
       end,
       navigate = function(self, cursorState, direction)
@@ -211,11 +211,15 @@ function _class:init(parent, layer, coh, params)
 
   layout:update(items)
   cursorState = layout:navigate()
+
+  if cursorState and cursorState.item then
+    cursorState.item:setHasCursor(true)
+  end
 end
 
 function _class:inputEventListener(inputEvent)
   local key = inputEvent.data.key
-  
+
   if navigationSuspended then return "keep" end
 
   if self:isCancelable() then
@@ -242,9 +246,9 @@ function _class:inputEventListener(inputEvent)
   if cursorState and cursorState.item then
     cursorState.item:setHasCursor(false)
   end
-  
+
   cursorState = layout:navigate(cursorState, key)
-  
+
   if cursorState and cursorState.item then
     cursorState.item:setHasCursor(true)
   end
@@ -267,13 +271,17 @@ function _class:main(coh)
   end)
 end
 
+function _class:getItems()
+  return items
+end
+
 function _class:getCursor()
   return cursor
 end
 
 function _class:hideCursor()
   cursor:hide()
-  
+
   if cursorState and cursorState.item then
     cursorState.item:setHasCursor(false)
   end
@@ -281,7 +289,7 @@ end
 
 function _class:showCursor()
   cursor:show()
-  
+
   if cursorState and cursorState.item then
     cursorState.item:setHasCursor(true)
   end
