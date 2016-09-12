@@ -46,7 +46,7 @@ _class._static = function()
         rowHeight = rowHeight or 60
 
         self.grid = {}
-        
+
         if horizontal then
           self.width = columnCount
           self.height = math.ceil(items:size()/columnCount)
@@ -54,7 +54,7 @@ _class._static = function()
           self.width = math.ceil(items:size()/rowCount)
           self.height = rowCount
         end
-        
+
         for i=1,self.width do
           self.grid[i] = {}
         end
@@ -167,7 +167,6 @@ end
 
 local textColor
 
-local cancelable
 local items
 local cursor
 
@@ -186,8 +185,6 @@ function _class:init(parent, layer, coh, params)
   graphicsDevice = game.graphicsDevice
 
   params = params or {}
-
-  cancelable = params.cancelable
 
   local scrWidth, scrHeight = game:getTargetDimensions()
 
@@ -214,6 +211,7 @@ function _class:init(parent, layer, coh, params)
 
   if cursorState and cursorState.item then
     cursorState.item:setHasCursor(true)
+    self:emit("update", {newItem = cursorState.item})
   end
 end
 
@@ -222,11 +220,9 @@ function _class:inputEventListener(inputEvent)
 
   if navigationSuspended then return "keep" end
 
-  if self:isCancelable() then
-    if key == "pause" or key == "b" then
-      self:emit("canceled")
-      return "keep"
-    end
+  if key == "pause" or key == "b" then
+    self:emit("canceled")
+    return "keep"
   end
 
   if key == "a" or key == "menu" then
@@ -243,14 +239,16 @@ function _class:inputEventListener(inputEvent)
     return "keep"
   end
 
-  if cursorState and cursorState.item then
-    cursorState.item:setHasCursor(false)
-  end
+  local oldItem = cursorState and cursorState.item
 
   cursorState = layout:navigate(cursorState, key)
 
-  if cursorState and cursorState.item then
-    cursorState.item:setHasCursor(true)
+  local newItem = cursorState and cursorState.item
+
+  if oldItem ~= newItem then
+    if oldItem then oldItem:setHasCursor(false) end
+    if newItem then newItem:setHasCursor(true) end
+    self:emit("update", {oldItem = oldItem, newItem = newItem})
   end
 
   return "keep"
