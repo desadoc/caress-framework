@@ -25,8 +25,11 @@
 
 local classes   = require("caress/classes")
 local error     = require("caress/error")
+local List      = require("caress/collection").List
 
 local _class = {}
+
+local table_insert = table.insert
 
 local dead = false
 local frameTimeLimit = nil
@@ -166,10 +169,40 @@ function _class:time(amount)
 end
 
 --- Event condition.
--- Returns a condition that is satisfied when source emits an event under
--- 'name'. Upon resume, returns the event emitted.
-function _class:event(source, name, cb)
-  return Condition.EventCondition(self, source, name, cb)
+-- Returns a condition that is satisfied when source emits an event that
+-- satisfies any of the event names passed after 'source'. Event names and a
+-- event callback as last parameter are optionals. Returns the emitted event.
+function _class:event(source, ...)
+
+  local eventNames = List.new()
+  local cb
+  
+  local args = {...}
+  
+  for _, arg in ipairs(args) do
+    if type(arg) == "string" then
+      eventNames:push_back(arg)
+    end
+    if type(arg) == "function" then
+      cb = arg
+      break
+    end
+  end
+  
+  if eventNames:is_empty() then
+    return Condition.EventCondition(self, source, nil, cb)
+  end
+  
+  if eventNames:size() == 1 then
+    return Condition.EventCondition(self, source, eventNames:front(), cb)
+  end
+  
+  local conditions = {}
+  for _, name in eventNames:iterator() do
+    table_insert(conditions, Condition.EventCondition(self, source, name, cb))  
+  end
+  
+  return Condition.MultiCondition.OneCondition(self, conditions)
 end
 
 --- Key press condition.
