@@ -208,11 +208,6 @@ function _class:init(parent, layer, coh, params)
 
   layout:update(items)
   cursorState = layout:navigate()
-
-  if cursorState and cursorState.item then
-    cursorState.item:setHasCursor(true)
-    self:emit("update", {newItem = cursorState.item})
-  end
 end
 
 function _class:inputEventListener(inputEvent)
@@ -246,8 +241,6 @@ function _class:inputEventListener(inputEvent)
   local newItem = cursorState and cursorState.item
 
   if oldItem ~= newItem then
-    if oldItem then oldItem:setHasCursor(false) end
-    if newItem then newItem:setHasCursor(true) end
     self:emit("update", {oldItem = oldItem, newItem = newItem})
   end
 
@@ -273,24 +266,20 @@ function _class:getItems()
   return items
 end
 
+function _class:getCurrentItem()
+  return cursorState and cursorState.item
+end
+
 function _class:getCursor()
   return cursor
 end
 
 function _class:hideCursor()
   cursor:hide()
-
-  if cursorState and cursorState.item then
-    cursorState.item:setHasCursor(false)
-  end
 end
 
 function _class:showCursor()
   cursor:show()
-
-  if cursorState and cursorState.item then
-    cursorState.item:setHasCursor(true)
-  end
 end
 
 function _class:suspendNavigation()
@@ -299,10 +288,6 @@ end
 
 function _class:resumeNavigation()
   navigationSuspended = false
-end
-
-function _class:isCancelable()
-  return cancelable
 end
 
 function _class:update(dt)

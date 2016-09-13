@@ -26,7 +26,6 @@ local game
 
 local innerElement
 local data
-local selected
 
 function _class:init(parent, layer, coh, _item)
   self.super:init(parent, layer, coh)
@@ -67,11 +66,6 @@ function _class:update(dt)
   innerElement:update(dt)
 end
 
-function _class:setHasCursor(value)
-  self.super:setHasCursor(value)
-  innerElement:setHasCursor(value)
-end
-
 function _class:draw()
   innerElement:draw()
 end
@@ -82,14 +76,6 @@ end
 
 function _class:getData()
   return data
-end
-
-function _class:setSelected(value)
-  selected = value
-end
-
-function _class:isSelected()
-  return selected
 end
 
 return _class
