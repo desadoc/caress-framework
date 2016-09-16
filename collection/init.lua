@@ -82,13 +82,30 @@ local ls = "\n"
 
 local function _tableToString(table, deep, indenting)
   local str = indenting .. "{" .. ls
-  for k, v in pairs(table) do
+
+  for i, v in ipairs(table) do
     if type(v) == "table" then
       if deep then
-        str = str .. indenting .. "  " .. tostring(k) .. " = \n" .. _tableToString(v, true, indenting .. "  ") .. "," .. ls
+        str = str .. indenting .. _tableToString(v, true, indenting .. "  ") .. "," .. ls
       end
     else
-      str = str .. indenting .. "  " .. tostring(k) .. " = " .. tostring(v) .. "," .. ls
+      local _v = tostring(v)
+      _v = (type(v) == "string") and ("\"" .. _v .. "\"") or _v
+      str = str .. indenting .. _v .. "," .. ls
+    end
+  end
+
+  for k, v in pairs(table) do
+    if type(k) ~= "number" then
+      if type(v) == "table" then
+        if deep then
+          str = str .. indenting .. "  [\"" .. tostring(k) .. "\"] = " .. ls .. _tableToString(v, true, indenting .. "  ") .. "," .. ls
+        end
+      else
+        local _v = tostring(v)
+        _v = (type(v) == "string") and ("\"" .. _v .. "\"") or _v 
+        str = str .. indenting .. "  [\"" .. tostring(k) .. "\"] = " .. _v .. "," .. ls
+      end
     end
   end
   return str .. indenting .. "}"
