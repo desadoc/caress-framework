@@ -121,28 +121,35 @@ function _class:update(dt)
   end
 
   elapsedTime = elapsedTime + dt
-
-  if not selectedAnimation.frames[currentFrame].time then
+  
+  local currFrameTime = selectedAnimation.frames[currentFrame].time
+  
+  if not currFrameTime then
     return
   end
-
-  if elapsedTime >
-    selectedAnimation.frames[currentFrame].time then
+  
+  while elapsedTime > currFrameTime do
     if currentFrame < #selectedAnimation.frames then
       currentFrame = currentFrame + 1
-      elapsedTime = 0
+      elapsedTime = elapsedTime - currFrameTime
     else
       if selectedAnimation.loop then
         currentFrame = 1
-        elapsedTime = 0
+        elapsedTime = elapsedTime - currFrameTime
       end
     end
+    
+    currFrameTime = selectedAnimation.frames[currentFrame].time
   end
 end
 
 function _class:draw()
   self.super:draw()
   graphicsDevice:draw(self, position.x, position.y)
+end
+
+function _class:setElapsedTime(time)
+  elapsedTime = time
 end
 
 function _class:getPosition()
