@@ -128,10 +128,14 @@ function _class:updateChild(child, dt)
   end
 end
 
-function _class:updateChilds(dt)
-  for iter, child in self:getChildren():iterator() do
+function _class:updateChildList(entityList, dt)
+  for iter, child in entityList:iterator() do
     self:updateChild(child, dt)
   end
+end
+
+function _class:updateChilds(dt)
+  self:updateChildList(self:getChildren(), dt)
 end
 
 --- Updates entity logic.
@@ -209,10 +213,14 @@ function _class:drawChild(child, _layer)
   end
 end
 
-function _class:drawChilds()
-  for iter, child in self:getChildren():iterator() do
+function _class:drawChildList(childList)
+  for iter, child in childList:iterator() do
     self:drawChild(child)
   end
+end
+
+function _class:drawChilds()
+  self:drawChildList(self:getChildren())
 end
 
 --- Renders the entity.
