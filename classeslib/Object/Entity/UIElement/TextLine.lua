@@ -27,13 +27,17 @@ local Vector  = require("caress/Vector")
 local game
 
 local text
+local width
+local aligning
 
-function _class:init(parent, layer, coh, _text)
+function _class:init(parent, layer, coh, _text, _width, _aligning)
   self.super:init(parent, layer, coh)
 
   game = _game
 
-  text = _text
+  text = _text or "CHANGEME"
+  width = _width or 9999
+  aligning = _aligning or "left"
   
   self:setSize(Vector.new(0, game.graphicsDevice:getFont():getHeight()))
 end
@@ -49,7 +53,7 @@ function _class:draw()
     actualText = text()
   end
   
-  gd:rawPrintf(actualText, self:getPosition().x, self:getPosition().y, 10000, "left")
+  gd:rawPrintf(actualText, self:getPosition().x, self:getPosition().y, width, aligning)
 end
 
 return _class
