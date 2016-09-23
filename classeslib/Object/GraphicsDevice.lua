@@ -27,6 +27,8 @@ local classes = require("caress/classes")
 
 local _class = {}
 
+local love_graphics_draw = love.graphics.draw
+
 function _class:init(width, height, layers)
   self.width = width
   self.height = height
@@ -199,7 +201,7 @@ function _class:flush()
   self:setColor(Vector.color(255, 255, 255))
   
   for _, depth in depthList:iterator() do
-    love.graphics.draw(self.canvases[depth])
+    love_graphics_draw(self.canvases[depth])
   end
 end
 
@@ -263,12 +265,9 @@ function _class:drawCircle(mode, baseX, baseY, radius, segments)
   love.graphics.circle(mode, baseX, baseY+radius, radius, segments)
 end
 
-local function drawAnimf(anim, x, y, r, sx, sy)
 
-end
-
-local function drawSprite(spr, x, y, r, sx, sy)
-  love.graphics.draw(
+function _class:drawSprite(spr, x, y, r, sx, sy)
+  love_graphics_draw(
     spr:getSpriteSheet():getImage(),
     spr:getQuad(), x, y, r, sx, sy
   )
@@ -288,23 +287,15 @@ function _class:draw(obj, x, y, sx, sy, r)
   x = x or 0.0
   y = y or 0.0
 
-  if obj.class == SpriteAnimation then
-    local currAnimation = obj:getCurrentAnimation()
-    local currFrame = obj:getCurrentFrame()
-
-    drawSprite(
-      currFrame.spriteSheet:getSprite(currFrame.spriteIndex),
-       x, y, r, sx, sy
-    )
-  elseif obj.class == classes.Object.Sprite then
-    drawSprite(obj, x, y, r, sx, sy)
+  if obj.class == classes.Object.Sprite then
+    self:drawSprite(obj, x, y, r, sx, sy)
   else
-    love.graphics.draw(obj, x, y, r, sx, sy)
+    love_graphics_draw(obj, x, y, r, sx, sy)
   end
 end
 
 function _class:drawBatch(batch)
-  love.graphics.draw(batch)
+  love_graphics_draw(batch)
 end
 
 function _class:rawPrintf(text, px, py, limit, align,

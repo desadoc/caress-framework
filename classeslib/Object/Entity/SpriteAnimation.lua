@@ -90,7 +90,7 @@ function _class:init(parent, layer, coh, aniCfg)
   graphicsDevice = game.graphicsDevice
   local gd = graphicsDevice
 
-  local assetCache = game.assetCache 
+  local assetCache = game.assetCache
 
   animations = collection.tableCopy(aniCfg, true)
 
@@ -111,7 +111,7 @@ end
 
 function _class:update(dt)
   self.super:update(dt)
-  
+
   if not selectedAnimation then
     return
   end
@@ -121,13 +121,13 @@ function _class:update(dt)
   end
 
   elapsedTime = elapsedTime + dt
-  
+
   local currFrameTime = selectedAnimation.frames[currentFrame].time
-  
+
   if not currFrameTime then
     return
   end
-  
+
   while elapsedTime > currFrameTime do
     if currentFrame < #selectedAnimation.frames then
       currentFrame = currentFrame + 1
@@ -138,14 +138,23 @@ function _class:update(dt)
         elapsedTime = elapsedTime - currFrameTime
       end
     end
-    
+
     currFrameTime = selectedAnimation.frames[currentFrame].time
   end
 end
 
 function _class:draw()
   self.super:draw()
-  graphicsDevice:draw(self, position.x, position.y)
+  local currFrame = self:getCurrentFrame()
+
+  graphicsDevice:drawSprite(
+    currFrame.spriteSheet:getSprite(currFrame.spriteIndex),
+    position.x, position.y
+  )
+end
+
+function _class:getAnimations()
+  return animations
 end
 
 function _class:setElapsedTime(time)
