@@ -156,6 +156,8 @@ local function initStaticMembers(class)
   end
 end
 
+local loadScriptFunc = love.filesystem.load
+
 --- Loads and registers a class from it's source file.
 -- @param root Parent class.
 -- @param classname New class name.
@@ -165,7 +167,7 @@ function _M.registerClass(root, classname, script)
 
   local chunk, msg
 
-  chunk, msg = loadfile(script)
+  chunk, msg = loadScriptFunc(script)
 
   if not chunk then
     error.errhand(msg)
