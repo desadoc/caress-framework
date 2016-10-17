@@ -120,12 +120,32 @@ function _M:begin()
   return 1
 end
 
+function _M:finish()
+  return #self
+end
+
+function _M:indexToIterator(index)
+  return index
+end
+
+function _M:iteratorToIndex(iter)
+  return iter
+end
+
 function _M:has_next(iter)
   return iter <= #self
 end
 
 function _M:next(iter)
   return iter+1, self[iter]
+end
+
+function _M:has_previous(iter)
+  return iter > 0
+end
+
+function _M:previous(iter)
+  return iter-1, self[iter]
 end
 
 --- Filters the list.
