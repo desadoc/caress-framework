@@ -26,6 +26,7 @@
 local Vector      = require("caress/Vector")
 local collection  = require("caress/collection")
 local classes     = require("caress/classes")
+local save        = require("caress/save")
 
 local AssetCache  = require("caress/AssetCache")
 
@@ -44,10 +45,10 @@ local frameTimeAccum = 0.0
 -- devices.
 function _class:init(_CONFIG, layers)
   self.super:init()
-  
+
   CONFIG = _CONFIG
   self.CONFIG = CONFIG
-  
+
   self.layers = layers
 
   math.randomseed(os.time())
@@ -67,13 +68,43 @@ function _class:init(_CONFIG, layers)
   end
 
   local tgtWidth, tgtHeight = self:getTargetDimensions()
-  
+
   canvas = love.graphics.newCanvas(tgtWidth, tgtHeight)
   canvas:setFilter("nearest", "nearest", 1)
 
   self.assetCache = AssetCache.new()
   self.graphicsDevice = classes.Object.GraphicsDevice(tgtWidth, tgtHeight, self.layers)
   self.graphicsDevice:setDefaultFilter("nearest", "nearest", 1)
+end
+
+--- Flushes user configuration to conf.ini on save folder
+-- This method compares current CONFIG variable with defaults returned by
+-- conf.lua, and flushes to disk all the differences.
+function _class:flushUserConfig()
+
+  local diff = {}
+  local defaults_root = save.load("conf.lua")
+
+  local function copyDifferences(defaults, custom, target)
+    for k, v in pairs(defaults) do
+      local custom_value = custom[k]
+      
+      if type(v) ~= "table" then
+        if type(v) ~= "function" then
+          if custom_value and custom_value ~= v then
+            target[k] = custom_value
+          end
+        end
+      else
+        target[k] = {}
+        copyDifferences(defaults[k], custom_value, target[k])
+      end
+    end
+  end
+
+  copyDifferences(defaults_root, CONFIG, diff)
+
+  save.save(CONFIG.userConfFilename, diff)
 end
 
 function _class:main(coh)
@@ -96,7 +127,7 @@ function _class:getTargetDimensions()
 end
 
 --- Updates game by a fixed timestep.
--- Timestep is fixed and multiple child updates are run if necessary. 
+-- Timestep is fixed and multiple child updates are run if necessary.
 function _class:update(dt)
   -- if framerate drops bellow 16 fps, a slowdown is introduced
   -- to keep gameplay smooth
@@ -134,7 +165,7 @@ function _class:draw()
 
   if gd then
     gd:clear()
-  
+
     gd:clearLayers()
     if not self:isHidden() then
       self.super:draw()
