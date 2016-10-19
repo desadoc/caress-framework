@@ -156,7 +156,9 @@ local function initStaticMembers(class)
   end
 end
 
-local loadScriptFunc = love.filesystem.load
+-- When love isn't avaible, usually when running tests, fallback to lua's
+-- native load function.
+local loadScriptFunc = love and love.filesystem.load or loadfile
 
 --- Loads and registers a class from it's source file.
 -- @param root Parent class.
