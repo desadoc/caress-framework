@@ -23,38 +23,18 @@
 
 local _class = {}
 
-local methods
-
-local update
-local draw
-
 function _class:init(parent, layer, coh, _methods)
-  self.super:init(parent, layer, coh)
   
-  methods = _methods
-  update = methods.update
-  draw = methods.draw
-  
-  if methods.init then methods.init(self, parent, layer, coh) end
-end
-
-function _class:main(coh)
-  if methods.main then methods.main(self, coh) end
-end
-
-function _class:update(dt)
-  if update then
-    update(self, dt)
-  else
-    self.super:update(dt)
+  for k, v in pairs(_methods) do
+    if k ~= "init" then
+      self[k] = v
+    end
   end
-end
-
-function _class:draw()
-  if draw then
-    draw(self)
+  
+  if _methods.init then
+    _methods.init(self, parent, layer, coh)
   else
-    self.super:draw()
+    self.super:init(parent, layer, coh)
   end
 end
 
