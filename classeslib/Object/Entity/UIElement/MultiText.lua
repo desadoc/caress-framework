@@ -84,12 +84,13 @@ function _class:getCurrentItem()
   return textList:at(currIter)
 end
 
-function _class:setCurrentIndex(index)
-  currIter = textList:indexToIterator(index)
-end
-
-function _class:getCurrentIndex(index)
-  return textList:iteratorToIndex(currIter)
+function _class:setCurrentItem(_item)
+  for iter, item in textList:iterator() do
+    if item == _item then
+      currIter = iter
+      break
+    end
+  end
 end
 
 return _class
