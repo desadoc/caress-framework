@@ -89,19 +89,23 @@ function _class:update(dt)
 end
 
 function _class:registerKeyboardInput(type, key, isRepeat)
+  local nativeKey = key
+  
   if reverseMapping.keyboard[key] then
     key = reverseMapping.keyboard[key]
   end
 
-  inputEvents:push_back({type=type, key=key, isRepeat=isRepeat})
+  inputEvents:push_back({type=type, key=key, isRepeat=isRepeat, device="keyboard", nativeKey=nativeKey})
 end
 
 function _class:registerGamepadInput(type, key, isRepeat)
+  local nativeKey = key
+  
   if reverseMapping.gamepad[key] then
     key = reverseMapping.gamepad[key]
   end
 
-  inputEvents:push_back({type=type, key=key, isRepeat=isRepeat})
+  inputEvents:push_back({type=type, key=key, isRepeat=isRepeat, device="gamepad", nativeKey=nativeKey})
 end
 
 function _class:isDown(key)
@@ -122,6 +126,14 @@ function _class:isDown(key)
 
     return love.keyboard.isDown(key)
   end
+end
+
+function _class:getMapping()
+  return mapping
+end
+
+function _class:getReverseMapping()
+  return reverseMapping
 end
 
 return _class
