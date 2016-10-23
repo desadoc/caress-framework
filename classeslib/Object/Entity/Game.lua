@@ -53,17 +53,10 @@ function _class:init(_CONFIG, layers)
 
   math.randomseed(os.time())
 
-  if CONFIG.game.useGamepad then
-    for i, joystick in ipairs(love.joystick.getJoysticks()) do
-      if joystick:isGamepad() then
-        gamepad = joystick
-        break
-      end
-    end
-
-    if not gamepad then
-      print("No gamepads found, reverting to keyboard")
-      CONFIG.game.useGamepad = false
+  for i, joystick in ipairs(love.joystick.getJoysticks()) do
+    if joystick:isGamepad() then
+      gamepad = joystick
+      break
     end
   end
 
@@ -88,7 +81,7 @@ function _class:flushUserConfig()
   local function copyDifferences(defaults, custom, target)
     for k, v in pairs(defaults) do
       local custom_value = custom[k]
-      
+
       if type(v) ~= "table" then
         if type(v) ~= "function" then
           if custom_value and custom_value ~= v then
@@ -182,13 +175,13 @@ end
 
 function _class:keypressed(key, isRepeat)
   if self.input and not self.input:isPaused() then
-    self.input:registerInput("keypressed", key, isRepeat)
+    self.input:registerKeyboardInput("keypressed", key, isRepeat)
   end
 end
 
 function _class:keyreleased(key)
   if self.input and not self.input:isPaused() then
-    self.input:registerInput("keyreleased", key)
+    self.input:registerKeyboardInput("keyreleased", key)
   end
 end
 
@@ -199,7 +192,7 @@ function _class:gamepadpressed(joystick, button)
     if joystick:getID() ~= gamepad:getID() then
       return
     end
-    self.input:registerInput("keypressed", button)
+    self.input:registerGamepadInput("keypressed", button)
   end
 end
 
@@ -210,7 +203,7 @@ function _class:gamepadreleased(joystick, button)
     if joystick:getID() ~= gamepad:getID() then
       return
     end
-    self.input:registerInput("keyreleased", button)
+    self.input:registerGamepadInput("keyreleased", button)
   end
 end
 

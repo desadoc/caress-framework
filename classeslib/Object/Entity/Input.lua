@@ -18,12 +18,12 @@
 --
 -- An instance of this class is created at Game and made available on
 -- 'game.input'. The game instance then passes all love input events to it, and
--- it translates these love events as @{Object} events. 
+-- it translates these love events as @{Object} events.
 --
 -- Entities interested in input events should add themselves as listeners
 -- of events sent by this class by using either @{Object.Entity}'s on/off API
 -- or @{Object.Cohandler}'s event conditions.
--- 
+--
 -- This class also acts as an abstracting over real control method. It maps
 -- keyboard or gamepad buttons to virtual buttons, which currently are 'A',
 -- 'B', 'C', 'D', 'Up', 'Down', 'Right', 'Left', 'Menu', 'Pause' and some extra
@@ -47,7 +47,7 @@ function _class:init(parent, _, coh, _gamepad)
   self.super:init(parent, nil, coh)
 
   game = _game
-  
+
   gamepad = _gamepad
 
   self:loadMapping()
@@ -88,15 +88,17 @@ function _class:update(dt)
   inputEvents = collection.List.new()
 end
 
-function _class:registerInput(type, key, isRepeat)
-  if game.CONFIG.game.useGamepad then
-    if reverseMapping.gamepad[key] then
-      key = reverseMapping.gamepad[key]
-    end
-  else
-    if reverseMapping.keyboard[key] then
-      key = reverseMapping.keyboard[key]
-    end
+function _class:registerKeyboardInput(type, key, isRepeat)
+  if reverseMapping.keyboard[key] then
+    key = reverseMapping.keyboard[key]
+  end
+
+  inputEvents:push_back({type=type, key=key, isRepeat=isRepeat})
+end
+
+function _class:registerGamepadInput(type, key, isRepeat)
+  if reverseMapping.gamepad[key] then
+    key = reverseMapping.gamepad[key]
   end
 
   inputEvents:push_back({type=type, key=key, isRepeat=isRepeat})
@@ -109,7 +111,7 @@ function _class:isDown(key)
     else
       print("unknown key: " .. key)
     end
-    
+
     return gamepad:isGamepadDown(key)
   else
     if mapping.keyboard[key] then
