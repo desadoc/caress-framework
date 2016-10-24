@@ -70,13 +70,17 @@ function _class:init(_CONFIG, layers)
   self.graphicsDevice:setDefaultFilter("nearest", "nearest", 1)
 end
 
+function _class:getDefaultConfig()
+  return save.load("conf.lua")
+end
+
 --- Flushes user configuration to conf.ini on save folder
 -- This method compares current CONFIG variable with defaults returned by
 -- conf.lua, and flushes to disk all the differences.
 function _class:flushUserConfig()
 
   local diff = {}
-  local defaults_root = save.load("conf.lua")
+  local defaults_root = self:getDefaultConfig()
 
   local function copyDifferences(defaults, custom, target)
     for k, v in pairs(defaults) do
