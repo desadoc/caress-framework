@@ -162,7 +162,7 @@ function _M.filteredPairs(t, f)
     end, t, nil
 end
 
-local _rand = love and love.math.random or math.random
+local _rand = math.random
 local function _weightFunc()
   return _rand()
 end
