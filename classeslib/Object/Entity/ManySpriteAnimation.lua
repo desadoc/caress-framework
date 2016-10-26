@@ -27,7 +27,7 @@ local Vector        = require("caress/Vector")
 
 local _class = {}
 
-local sprites = {}
+local sprites
 
 local animations = nil
 
@@ -45,6 +45,15 @@ function _class:init(parent, layer, coh, spriteAnimation, size)
 
   animations = spriteAnimation:getAnimations()
 
+  size = size or 0
+  self:adjustSize(size)
+
+  self.parent = parent
+end
+
+function _class:adjustSize(size)
+
+  sprites = {}
   for i=1,size do
     sprites[i] = {}
   
@@ -54,8 +63,6 @@ function _class:init(parent, layer, coh, spriteAnimation, size)
     sprites[i].elapsedTime = 0.0
     sprites[i].currentFrame = 1
   end
-
-  self.parent = parent
 end
 
 function _class:update(dt)
