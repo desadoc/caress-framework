@@ -168,9 +168,10 @@ end
 
 --- Searches for an item.
 -- @return Returns true if item was found.
-function _M:contains(item)
+function _M:contains(item, cmp)
+  cmp = cmp or function(a, b) return a == b end
   for iter, _item in self:iterator() do
-    if item == _item then return true end
+    if cmp(item, _item) then return true end
   end
   return false
 end
