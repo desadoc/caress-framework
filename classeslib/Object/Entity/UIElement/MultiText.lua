@@ -27,21 +27,25 @@ local List    = require("caress/collection").List
 
 local game
 
-local textList
+local items
 local width
 local aligning
 local currIter
 
-function _class:init(parent, layer, coh, _textList, _width, _aligning)
+function _class:init(parent, layer, coh, _items, _width, _aligning)
   self.super:init(parent, layer, coh)
 
   game = _game
 
-  textList = _textList or List.new{"CHANGEME_1", "CHANGEME_2", "CHANGEME_3"}
+  items = _items or List.new{
+    {text="CHANGEME_1", data="changeme_1"},
+    {text="CHANGEME_2", data="changeme_2"}
+  }
+  
   width = _width or 9999
   aligning = _aligning or "left"
   
-  currIter = textList:begin()
+  currIter = items:begin()
   
   self:setSize(Vector.new(0, game.graphicsDevice:getFont():getHeight()))
 end
@@ -49,7 +53,7 @@ end
 function _class:draw()
   local gd = game.graphicsDevice
   
-  local text = textList:at(currIter)
+  local text = items:at(currIter).text
   
   local actualText
   if type(text) == "string" then
@@ -63,30 +67,30 @@ function _class:draw()
 end
 
 function _class:next()
-  if currIter == textList:finish() then
-    currIter = textList:begin()
+  if currIter == items:finish() then
+    currIter = items:begin()
     return
   end
   
-  currIter = textList:next(currIter)
+  currIter = items:next(currIter)
 end
 
 function _class:previous()
-  if currIter == textList:begin() then
-    currIter = textList:finish()
+  if currIter == items:begin() then
+    currIter = items:finish()
     return
   end
   
-  currIter = textList:previous(currIter)
+  currIter = items:previous(currIter)
 end
 
 function _class:getCurrentItem()
-  return textList:at(currIter)
+  return items:at(currIter)
 end
 
-function _class:setCurrentItem(_item)
-  for iter, item in textList:iterator() do
-    if item == _item then
+function _class:setCurrentItem(_itemData)
+  for iter, item in items:iterator() do
+    if item.data == _itemData then
       currIter = iter
       break
     end

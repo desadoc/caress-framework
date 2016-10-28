@@ -70,6 +70,10 @@ function _class:init(_CONFIG, layers)
   self.graphicsDevice:setDefaultFilter("nearest", "nearest", 1)
 end
 
+function _class:hasGamepad()
+  if gamepad then return true end
+end
+
 function _class:getDefaultConfig()
   return save.load("conf.lua")
 end
