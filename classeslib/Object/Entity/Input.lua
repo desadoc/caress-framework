@@ -38,6 +38,7 @@ local _class = {}
 local inputEvents = collection.List.new()
 local mapping
 local reverseMapping
+local lastActiveDevice
 
 local gamepad
 
@@ -51,6 +52,10 @@ function _class:init(parent, _, coh, _gamepad)
   gamepad = _gamepad
 
   self:loadMapping()
+end
+
+function _class:getLastActiveDevice()
+  return lastActiveDevice
 end
 
 function _class:loadMapping()
@@ -89,8 +94,10 @@ function _class:update(dt)
 end
 
 function _class:registerKeyboardInput(type, key, isRepeat)
+  lastActiveDevice = "keyboard"
+
   local nativeKey = key
-  
+
   if reverseMapping.keyboard[key] then
     key = reverseMapping.keyboard[key]
   end
@@ -99,8 +106,10 @@ function _class:registerKeyboardInput(type, key, isRepeat)
 end
 
 function _class:registerGamepadInput(type, key, isRepeat)
+  lastActiveDevice = "gamepad"
+
   local nativeKey = key
-  
+
   if reverseMapping.gamepad[key] then
     key = reverseMapping.gamepad[key]
   end
@@ -109,23 +118,25 @@ function _class:registerGamepadInput(type, key, isRepeat)
 end
 
 function _class:isDown(key)
-  if game.CONFIG.game.useGamepad then
+  if gamepad then
     if mapping.gamepad[key] then
       key = mapping.gamepad[key]
     else
       print("unknown key: " .. key)
     end
 
-    return gamepad:isGamepadDown(key)
-  else
-    if mapping.keyboard[key] then
-      key = mapping.keyboard[key]
-    else
-      print("unknown key: " .. key)
+    if gamepad:isGamepadDown(key) then
+      return true
     end
-
-    return love.keyboard.isDown(key)
   end
+
+  if mapping.keyboard[key] then
+    key = mapping.keyboard[key]
+  else
+    print("unknown key: " .. key)
+  end
+
+  return love.keyboard.isDown(key)
 end
 
 function _class:getMapping()
