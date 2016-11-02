@@ -118,25 +118,23 @@ function _class:registerGamepadInput(type, key, isRepeat)
 end
 
 function _class:isDown(key)
+
+  local gamepadDown
+  local keyboardDown
+
   if gamepad then
-    if mapping.gamepad[key] then
-      key = mapping.gamepad[key]
-    else
-      print("unknown key: " .. key)
-    end
-
-    if gamepad:isGamepadDown(key) then
-      return true
+    local gamepadKey = mapping.gamepad[key]
+    if gamepadKey then
+      gamepadDown = gamepad:isGamepadDown(gamepadKey)
     end
   end
 
-  if mapping.keyboard[key] then
-    key = mapping.keyboard[key]
-  else
-    print("unknown key: " .. key)
+  local keyboardKey = mapping.keyboard[key]
+  if keyboardKey then
+    keyboardDown = love.keyboard.isDown(keyboardKey)
   end
 
-  return love.keyboard.isDown(key)
+  return gamepadDown or keyboardDown
 end
 
 function _class:getMapping()
