@@ -266,7 +266,7 @@ function _class:drawCircle(mode, baseX, baseY, radius, segments)
 end
 
 
-function _class:drawSprite(spr, x, y, r, sx, sy)
+function _class:drawSprite(spr, x, y, r, sx, sy, ox, oy, kx, ky)
   love_graphics_draw(
     spr:getSpriteSheet():getImage(),
     spr:getQuad(), x, y, r, sx, sy
@@ -276,7 +276,7 @@ end
 local SpriteAnimation = classes.Object.Entity.SpriteAnimation
 
 --- Draws animations, sprites or other love.graphics objects like canvases.
-function _class:draw(obj, x, y, sx, sy, r)
+function _class:draw(obj, x, y, sx, sy, r, ox, oy, kx, ky)
   sx = sx or 1.0
   sy = sy or 1.0
   r = r or 0.0
@@ -288,7 +288,7 @@ function _class:draw(obj, x, y, sx, sy, r)
   y = y or 0.0
 
   if obj.class == classes.Object.Sprite then
-    self:drawSprite(obj, x, y, r, sx, sy)
+    self:drawSprite(obj, x, y, r, sx, sy, ox, oy, kx, ky)
   else
     love_graphics_draw(obj, x, y, r, sx, sy)
   end

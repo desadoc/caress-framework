@@ -73,6 +73,10 @@ local Vector        = require("caress/Vector")
 local _class = {}
 
 local position = Vector.new()
+local scaling = Vector.new(1.0, 1.0)
+local rotation = 0.0
+local originOfs = Vector.new()
+local shearing = Vector.new()
 local color = Vector.color(255, 0, 255)
 local elapsedTime = 0.0
 local currentFrame = 1
@@ -136,6 +140,9 @@ function _class:update(dt)
       if selectedAnimation.loop then
         currentFrame = 1
         elapsedTime = elapsedTime - currFrameTime
+      else
+        selectedAnimation = nil
+        return
       end
     end
 
@@ -146,6 +153,8 @@ end
 function _class:draw()
   self.super:draw()
   local currFrame = self:getCurrentFrame()
+  
+  if not currFrame then return end
 
   graphicsDevice:drawSprite(
     currFrame.spriteSheet:getSprite(currFrame.spriteIndex),
@@ -169,12 +178,44 @@ function _class:setPosition(_position)
   position = Vector.new_cpy(_position)
 end
 
+function _class:getScaling()
+  return scaling
+end
+
+function _class:setScaling(_scaling)
+  scaling = Vector.new_cpy(_scaling)
+end
+
+function _class:getRotation()
+  return rotation
+end
+
+function _class:setRotation(_rotation)
+  rotation = _rotation
+end
+
+function _class:getOriginOffset()
+  return originOfs
+end
+
+function _class:setOriginOffset(_offset)
+  originOfs = Vector.new_cpy(_offset)
+end
+
+function _class:getShearing()
+  return shearing
+end
+
+function _class:setShearing(_shearing)
+  shearing = Vector.new_cpy(_shearing)
+end
+
 function _class:getCurrentAnimation()
   return selectedAnimation
 end
 
 function _class:getCurrentFrame()
-  return selectedAnimation.frames[currentFrame]
+  return selectedAnimation and selectedAnimation.frames[currentFrame]
 end
 
 function _class:getWidth()
