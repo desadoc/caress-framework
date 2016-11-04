@@ -269,7 +269,7 @@ end
 function _class:drawSprite(spr, x, y, r, sx, sy, ox, oy, kx, ky)
   love_graphics_draw(
     spr:getSpriteSheet():getImage(),
-    spr:getQuad(), x, y, r, sx, sy
+    spr:getQuad(), x, y, r, sx, sy, ox, oy, kx, ky
   )
 end
 

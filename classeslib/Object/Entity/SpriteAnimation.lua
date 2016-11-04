@@ -158,7 +158,8 @@ function _class:draw()
 
   graphicsDevice:drawSprite(
     currFrame.spriteSheet:getSprite(currFrame.spriteIndex),
-    position.x, position.y
+    position.x, position.y, rotation, scaling.x, scaling.y,
+    originOfs.x, originOfs.y, shearing.x, shearing.y
   )
 end
 
