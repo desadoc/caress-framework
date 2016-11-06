@@ -39,18 +39,24 @@ end
 function _class:main(coh)
   if methods.main then
     methods.main(self, coh)
+  else
+    if self.super.main then self.super:main(coh) end
   end
 end
 
 function _class:update(dt)
   if methods.update then
     methods.update(self, dt)
+  else
+    if self.super.update then self.super:update(dt) end
   end
 end
 
 function _class:draw()
   if methods.draw then
     methods.draw(self)
+  else
+    if self.super.draw then self.super:draw() end
   end
 end
 
