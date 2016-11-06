@@ -23,18 +23,34 @@
 
 local _class = {}
 
+local methods
+
 function _class:init(parent, layer, coh, _methods)
-  
-  for k, v in pairs(_methods) do
-    if k ~= "init" then
-      self[k] = v
-    end
-  end
-  
+
   if _methods.init then
     _methods.init(self, parent, layer, coh)
   else
     self.super:init(parent, layer, coh)
+  end
+  
+  methods = _methods
+end
+
+function _class:main(coh)
+  if methods.main then
+    methods.main(self, coh)
+  end
+end
+
+function _class:update(dt)
+  if methods.update then
+    methods.update(self, dt)
+  end
+end
+
+function _class:draw()
+  if methods.draw then
+    methods.draw(self)
   end
 end
 
