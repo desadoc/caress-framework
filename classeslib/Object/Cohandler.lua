@@ -127,6 +127,10 @@ function _class:isPaused()
   return not self:isDead() and self.condition and self.condition:isPaused()
 end
 
+function _class:isSuspended()
+  return coroutine.status(self.co) == "suspended"
+end
+
 --- Returns elapsed time since last time coroutine was resumed.
 function _class:getElapsedTime()
   return love.timer.getTime() - self.resumeTime
@@ -145,6 +149,21 @@ function _class:wait(condition)
 
   self.condition = condition
   condition:enable()
+  local r = {coroutine.yield()}
+  condition:disable()
+  self.condition = nil
+
+  return unpack(r)
+end
+
+function _class:runAndWait(condition, coh, ...)
+  condition = condition or self:custom(function() return true end)
+
+  self.condition = condition
+  condition:enable()
+  
+  coh:run(...)
+  
   local r = {coroutine.yield()}
   condition:disable()
   self.condition = nil

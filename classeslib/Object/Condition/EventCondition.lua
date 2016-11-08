@@ -32,7 +32,8 @@ function _class:init(coh, _source, _name, _cb)
   cb =
     function(evt)
       result = _cb(evt)
-      return "keep"
+      
+      if not result then return "keep" else return "remove" end
     end
 end
 
@@ -50,9 +51,7 @@ function _class:update(dt)
 end
 
 function _class:result()
-  local r = result
-  result = nil
-  return r
+  return result
 end
 
 return _class

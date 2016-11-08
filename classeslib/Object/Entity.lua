@@ -267,18 +267,26 @@ function _class:destroy(obj)
   obj:clearListeners()
 end
 
---- Runs a coroutine.
--- Runs a coroutine with signature _class:myCo(coh, ...), extra parameters are
--- passed to it.
-function _class:runCo(func, ...)
+
+function _class:createCo(func)
   local coh = classes.Object.Cohandler(
     function(...)
       func(self, ...)
     end
   )
+  
+  coroutines:push_back(coh)
+  
+  return coh
+end
+
+--- Runs a coroutine.
+-- Runs a coroutine with signature _class:myCo(coh, ...), extra parameters are
+-- passed to it.
+function _class:createAndRunCo(func, ...)
+  local coh = self:createCo(func)
 
   coh:run(...)
-  coroutines:push_back(coh)
 
   return coh
 end
@@ -287,10 +295,15 @@ end
 -- Starts the entity by using caress to call it's main function. First
 -- parameter main receives (besides a self reference) is a cohandler, a handler
 -- to the caress coroutine. Additional parameters are passed after it.
-function _class:start(...)
+function _class:start(parentCoh, parentCondition)
   self:enable()
   if self.main then
-    self:runCo(self.main, ...)
+    local coh = self:createCo(self.main)
+    if parentCoh then
+      parentCoh:runAndWait(parentCondition, coh)
+    else
+      coh:run()
+    end
   end
   return self
 end
