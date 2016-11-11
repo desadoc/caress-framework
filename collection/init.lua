@@ -173,10 +173,16 @@ end
 -- 'weightFunc' is a function that returns the weight for an item, if missing
 -- an uniform random function is used.
 -- @param list Original list.
--- @param n Number of items in the new list.
+-- @param n Number of items in the new list. Defaults to list:size()
 -- @param weightFunc Optional. Returns the weight of an item.
 function _M.randomSubList(list, n, weightFunc)
   weightFunc = weightFunc or _weightFunc
+  
+  if not n then
+    n = list:size()
+  else
+    n = n < list:size() and n or list:size()
+  end
 
   if list:is_empty() or n <=0 then
     return _M.List.new()
@@ -188,9 +194,7 @@ function _M.randomSubList(list, n, weightFunc)
     weightsList:push_back({weight=weightFunc(item), item=item})
   end
 
-  weightsList:sort("weight")
-
-  n = n < list:size() and n or list:size()
+  weightsList:sort("weight")  
 
   local result = _M.List.new()
 
