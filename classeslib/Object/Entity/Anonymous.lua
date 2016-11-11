@@ -21,9 +21,12 @@
 --
 -- @classmod Object.Entity.Anonymous
 
+local List  = require("caress/collection").List
+
 local _class = {}
 
 local methods
+local protectedMethods = List.new{"init", "main", "update", "draw"}
 
 function _class:init(parent, layer, coh, _methods)
 
@@ -34,6 +37,12 @@ function _class:init(parent, layer, coh, _methods)
   end
   
   methods = _methods
+  
+  for name, method in pairs(methods) do
+    if not protectedMethods:contains(name) then
+      self[name] = method
+    end
+  end 
 end
 
 function _class:main(coh)
