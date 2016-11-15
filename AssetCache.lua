@@ -69,6 +69,19 @@ function loaders.sprs(self, path)
   return chunk()
 end
 
+function loaders.sndsrc(self, path)
+  local sndsrcSrc = love.filesystem.read(assetsRootPath .. path)
+  local chunk, err = loadstring(sndsrcSrc)
+  if err then
+    error.errhand('failed to load sndsrc file: ' .. err)
+  end
+  local sndsrcConf = chunk()
+  if sndsrcConf.mode == "static" then
+    sndsrcConf.data = love.sound.newSoundData(assetsRootPath .. sndsrcConf.file)
+  end
+  return sndsrcConf
+end
+
 local processors = {}
 
 function processors.animf(self, aniCfg, parent, layer, coh)
@@ -80,6 +93,14 @@ end
 
 function processors.sprs(self, sprsSrc, ...)
   return classes.Object.SpriteSheet(sprsSrc, self.game, ...)
+end
+
+function processors.sndsrc(self, sndsrcData, ...)
+  if sndsrcData.mode == "static" then
+    return love.audio.newSource(sndsrcData.data)
+  else
+    return love.audio.newSource(assetsRootPath .. sndsrcData.file, "stream")
+  end
 end
 
 function _M.new()
