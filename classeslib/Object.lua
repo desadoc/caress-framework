@@ -75,7 +75,6 @@ local function _removeEventListener(self, eventName, listener)
     for _, name in ipairs(splitString(eventName, ".")) do
       -- error? no listeners found for this event name
       if not t then
-        print("warning: no listeners found for event name \"" .. eventName .. "\"")
         break
       end
       t = t[name]
