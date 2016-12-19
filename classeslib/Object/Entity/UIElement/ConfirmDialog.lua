@@ -29,8 +29,6 @@ local bgColor
 local highlightColor
 
 local title
-
-local items
 local currSelOption
 
 local game
@@ -52,9 +50,6 @@ function _class:init(parent, layer, coh, params)
   highlightColor = params.highlightColor or Vector.color(160, 192, 255)
 
   title = params.title or "Are you sure?"
-
-  items = params.items or List.new()
-
   currSelOption = "no"
 end
 
