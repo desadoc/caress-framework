@@ -1,4 +1,4 @@
 #!/bin/sh
 
-lua ./lib/caress/tests/run.lua
+lua ./caress/tests/run.lua
 
