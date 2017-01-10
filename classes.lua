@@ -210,7 +210,7 @@ end
 
 function _M.initStaticMembers(classroot)
   if classroot._chunk then
-    local static = classroot._chunk().static
+    local static = classroot._chunk()._static
     if static then
       rawset(classroot, "_static", static())
     end

@@ -13,34 +13,31 @@
 
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-local _class = {}
 
-_class._static = function()
-  return {
-    FOO = 21,
-    BAR = 84
-  }
+package.path =
+  "./?.lua;./?/init.lua;" .. package.path
+
+local classes = require("caress/classes")
+
+classes.registerClass(classes, "A", "caress/tests/classes/A")
+classes.registerClass(classes.A, "B", "caress/tests/classes/A/B")
+classes.registerClass(classes.A, "C", "caress/tests/classes/A/C")
+
+local table_insert = table.insert
+
+local instances = {}
+local n = 25000
+
+for i=1,n do
+  table_insert(instances, classes.A:new())
 end
 
-function _class:init()
-  self.bar = 42
+for i=1,n do
+  table_insert(instances, classes.A.B:new())
 end
 
-function _class:foo1()
-  self.bar = self.bar + 1
+for i=1,n do
+  table_insert(instances, classes.A.C:new())
 end
 
-function _class:foo2()
-  self.bar = self.bar - 1
-end
-
-function _class:foo3()
-  self.bar = 21
-end
-
-function _class:foo5()
-  return self
-end
-
-return _class
-
+print("Lua memory usage (in MB): " .. (collectgarbage("count")/1024))

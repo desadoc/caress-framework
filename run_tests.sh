@@ -1,4 +1,3 @@
 #!/bin/sh
 
-lua ./caress/tests/run.lua
-
+luajit ./caress/tests/run.lua

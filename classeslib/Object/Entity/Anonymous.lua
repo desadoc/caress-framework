@@ -49,7 +49,9 @@ function _class:main(coh)
   if methods.main then
     methods.main(self, coh)
   else
-    if self.super.main then self.super:main(coh) end
+    if self.super.main ~= self.main then
+      self.super:main(coh)
+    end
   end
 end
 

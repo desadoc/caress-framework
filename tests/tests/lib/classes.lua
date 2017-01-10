@@ -119,12 +119,24 @@ describe["classes"] = function()
   end
   
   it["should allow static members and static members inheritance"] = function()
+    C = Classes.A.C
     c1 = Classes.A.C:new()
+    
+    expect(C.FOO).should_be(42)
+    expect(C.super.FOO).should_be(21)
+    expect(C.BAR).should_be(84)
+    expect(C.super.BAR).should_be(84)
     
     expect(c1.class.FOO).should_be(42)
     expect(c1.class.super.FOO).should_be(21)
     expect(c1.class.BAR).should_be(84)
     expect(c1.class.super.BAR).should_be(84)
+  end
+  
+  it["should correctly change self reference on super calls"] = function()
+    c1 = Classes.A.C:new()
+    
+    expect(rawequal(c1:foo5(), c1.super)).should_be(true)
   end
 
 end

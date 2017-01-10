@@ -16,7 +16,7 @@
 
 local _class = {}
 
-_class.static = function()
+_class._static = function()
   return {
     FOO = 42
   }
