@@ -82,7 +82,7 @@ local function isTransparent(entity, collInfo)
 end
 
 local function getCollisionResponseFromMap(entity, collDir, collClass)
-  if not entity.getCollisionResponseMap then return nil end
+  if not entity.getCollisionResponseMap then return end
 
   for dir, response in pairs(entity:getCollisionResponseMap(collClass)) do
     if geom.isNearToDir(dir, collDir) then
@@ -95,7 +95,10 @@ function _M:getCollisionResponse(collInfo)
   local entity = self.entity
 
   -- if it doesn't have a response map, then it's transparent
-  if not entity.getCollisionResponseMap then return nil end
+  if not entity.getCollisionResponseMap then
+    error("satan: " .. entity.class:getCompleteName())
+    return
+  end
 
   local invCollDir = geom.invertDir(collInfo.side)
 
@@ -105,7 +108,7 @@ function _M:getCollisionResponse(collInfo)
 
   -- if there isn't a response for collInfo.side direction then
   -- it's transparent too
-  if not priorityFromMap then return nil end
+  if not priorityFromMap then return end
 
   local responseList = collection.List.new()
   local queriedColliders = collection.List.new()
@@ -183,7 +186,11 @@ local function calcResponse(collInfo)
   local a = collInfo.selfResponse
   local b = collInfo.colliderResponse
 
-  if not a or not b then return end
+  if not a or not b then
+    --if not a then error("satan, not a") end
+    --if not b then error("satan, not b") end
+    return
+  end
   if a:is_empty() or b:is_empty() then return end
 
   local fromTopOrRight =

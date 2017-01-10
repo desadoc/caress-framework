@@ -23,79 +23,108 @@ describe["classes"] = function()
     Classes.registerClass(Classes, "A", "caress/tests/classes/A")
     Classes.registerClass(Classes.A, "B", "caress/tests/classes/A/B")
     Classes.registerClass(Classes.A, "C", "caress/tests/classes/A/C")
+    Classes.registerClass(Classes, "D", "caress/tests/classes/D")
+    
+    Classes.initStaticMembers(Classes)
   end
 
   it["should create objects"] = function()
     a1 = Classes.A:new()
     b1 = Classes.A.B:new()
     c1 = Classes.A.C:new()
+    d1 = Classes.D:new()
   end
-
+  
   it["should inherit fields"] = function()
     a1 = Classes.A:new()
-    expect(a1._bar).should_be(42)
+    expect(a1.bar).should_be(42)
 
     b1 = Classes.A.B:new()
-    expect(b1._bar).should_be(42)
+    expect(b1.bar).should_be(42)
 
-    b1._bar = 84
-    expect(b1._bar).should_be(84)
-    expect(b1.super._bar).should_be(nil)
+    b1.bar = 84
+    expect(b1.bar).should_be(84)
+    expect(b1.super.bar).should_be(84)
+    expect(b1.bar == b1.super.bar).should_be(true)
   end
 
   it["should inherit methods"] = function()
     b1 = Classes.A.B:new()
 
     b1:foo1()
-    expect(b1._bar).should_be(43)
+    expect(b1.bar).should_be(43)
     b1:foo2()
-    expect(b1._bar).should_be(42)
+    expect(b1.bar).should_be(42)
   end
 
   it["should allow method overriding"] = function()
     b1 = Classes.A.B:new()
 
     b1:foo1()
-    expect(b1._bar).should_be(43)
+    expect(b1.bar).should_be(43)
     b1:foo2()
-    expect(b1._bar).should_be(42)
+    expect(b1.bar).should_be(42)
     b1:foo3()
-    expect(b1._bar).should_be(84)
+    expect(b1.bar).should_be(84)
   end
 
   it["should allow to call super class overrided methods"] = function()
     b1 = Classes.A.B:new()
 
     b1:foo1()
-    expect(b1._bar).should_be(43)
+    expect(b1.bar).should_be(43)
     b1:foo2()
-    expect(b1._bar).should_be(42)
+    expect(b1.bar).should_be(42)
     b1.super:foo3()
-    expect(b1._bar).should_be(21)
+    expect(b1.bar).should_be(21)
     b1:foo1()
-    expect(b1._bar).should_be(22)
+    expect(b1.bar).should_be(22)
     b1.super.foo3(b1)
-    expect(b1._bar).should_be(21)
+    expect(b1.bar).should_be(21)
   end
-
-  it["should allow to override (and shadow) fields"] = function()
+  
+  it["should correctly answer if two entities are equal"] = function()
+    a1 = Classes.A:new()
+    b1 = Classes.A.B:new()
     c1 = Classes.A.C:new()
-
-    expect(c1._bar).should_be(168)
-    expect(c1.super._bar).should_be(42)
-
-    c1:foo1()
-    expect(c1._bar).should_be(169)
-    expect(c1.super._bar).should_be(42)
-
-    c1.super:foo1()
-    expect(c1._bar).should_be(170)
-    expect(c1.super._bar).should_be(42)
-
-    c1.super.foo1(c1)
-    expect(c1._bar).should_be(171)
-    expect(c1.super._bar).should_be(42)
-
+    d1 = Classes.D:new()
+    
+    expect(a1 == a1).should_be(true)
+    expect(b1 == b1).should_be(true)
+    expect(c1 == c1).should_be(true)
+    expect(d1 == d1).should_be(true)
+    
+    expect(a1 == b1).should_be(false)
+    expect(a1 == c1).should_be(false)
+    expect(a1 == d1).should_be(false)
+    
+    expect(a1.super == nil).should_be(true)
+    expect(b1.super == b1).should_be(true)
+    expect(c1.super == c1).should_be(true)
+    expect(d1.super == nil).should_be(true)
+    
+    expect(b1.super == a1).should_be(false)
+    expect(c1.super == a1).should_be(false)
+  end
+  
+  it["should allow to access subclasses methods from super references"] = function()
+    c1 = Classes.A.C:new()
+    
+    expect(c1.bar).should_be(nil)
+    expect(c1.super.bar).should_be(nil)
+    
+    c1.super:foo4()
+    expect(c1.bar).should_be(168)
+    expect(c1.super.bar).should_be(168)
+  end
+  
+  it["should allow static members and static members inheritance"] = function()
+    c1 = Classes.A.C:new()
+    
+    expect(c1.class.FOO).should_be(42)
+    expect(c1.class.super.FOO).should_be(21)
+    expect(c1.class.BAR).should_be(84)
+    expect(c1.class.super.BAR).should_be(84)
   end
 
 end

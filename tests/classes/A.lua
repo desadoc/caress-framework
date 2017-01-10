@@ -15,23 +15,27 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 local _class = {}
 
-function _class:new()
-  self._bar = 42
+_class.static = function()
+  return {
+    FOO = 21,
+    BAR = 84
+  }
 end
 
 function _class:init()
+  self.bar = 42
 end
 
 function _class:foo1()
-  self._bar = self._bar + 1
+  self.bar = self.bar + 1
 end
 
 function _class:foo2()
-  self._bar = self._bar - 1
+  self.bar = self.bar - 1
 end
 
 function _class:foo3()
-  self._bar = 21
+  self.bar = 21
 end
 
 return _class

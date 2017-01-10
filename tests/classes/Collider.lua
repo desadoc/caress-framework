@@ -19,7 +19,7 @@ local geom    = require("caress/geom")
 
 local _class = {}
 
-function _class:new()
+function _class:init()
   self.pos      = Vector.new(0.0, 0.0)
   self.vel      = Vector.new(0.0, 0.0)
   self.shape    = geom.aabbShape(0.0, 0.0, 1.0, 1.0)

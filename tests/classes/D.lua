@@ -16,12 +16,5 @@
 
 local _class = {}
 
-function _class:init()
-  self.super:init()
-end
-
-function _class:foo3()
-  self.bar = 84
-end
-
 return _class
+

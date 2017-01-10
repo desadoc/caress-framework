@@ -24,15 +24,10 @@
 --
 -- Some methods/fields have special meaning when implementing a class:
 --
--- _class:new()
---
--- This method serves as a place to declare and initialize instance fields
--- with basic default values, optional.
---
 -- _class:init()
 --
--- This method is also used for initialization, but it's called after the
--- object was fully constructed, it is too optional.
+-- This optional method is also used for initialization after the object is
+-- fully constructed, it's optional.
 --
 -- _class.initClass()
 --
@@ -53,345 +48,124 @@
 local collection  = require("caress/collection")
 local error       = require("caress/error")
 
-local _M = {}
+local _M = {
+  _subclasses = collection.List.new()
+}
 
---- Root name.
--- Class path root is named "classes" and for clarity this module also should
--- be named "classes" when requiring.
--- @return Root name.
-function _M.getCompleteName()
-  return "classes"
-end
-
--- List of classes at root of class hierarchy.
-_M._subclasses = collection.List.new()
-
--- This function creates and registers a new class as a subclass of the given
--- root. Chunk is the loaded lua file defining the class.
-local function _registerClass(root, classname, chunk)
-  local newClass = {
-    _classname = classname,
-    _super = not rawget(root, "_is_folder") and root or root._super,
-    _subclasses = collection.List.new(),
-    -- we save the chunk which returns a module containing methods
-    -- and private fields
-    _classChunk = chunk,
-    _mt = {
-      __call = function(class, ...)
-        return _M.createInstance(class, ...)
-      end,
-      __index = function(class, k)
-        local field = rawget(class._static, k)
-        if field then return field end
-        if rawget(class, "_super") then return class._super[k] end
-      end,
-      __newindex = function(class, k, v)
-        local field = rawget(class._static, k)
-        if field then rawset(class._static, k, v); return end
-        if class._super[k] then class._super[k] = v; return end
-        rawset(class._static, k, v)
-      end
-    },
-    nameAndClassPairs =
-    function(self)
-      return collection.filteredPairs(self,
-        function(k, v)
-          return
-            type(v) == 'table' and
-            v._classname and
-            v._super == root[classname]
-        end
-      )
-    end,
-    getSubclasses = function(self)
-      return self._subclasses
-    end,
-    getRandomSubclasses =
-    function(self, quantity)
-      return collection.randomSubList(self._subclasses, quantity)
-    end,
-    -- ISA operator. It returns true when class inherits directly or indirectly
-    -- from this class or is equal to it.
-    isA =
-    function(self, class)
-      while self do
-        if self == class then return true end
-        self = self._super
-      end
-    end,
-    -- returns this class complete name, including each super class in order
-    -- and separated by dots.
-    getCompleteName =
-    function()
-      return root.getCompleteName() .. "." .. classname
-    end,
-    -- instantiates a class, same result as Class(...)
-    new =
-    function(self, ...)
-      return _M.createInstance(self, ...)
-    end,
-    newInplace =
-    function(self, tb, ...)
-      return _M.createInstanceInplace(self, tb, ...)
+local instanceMt = {
+  __index = function(t, k)
+    local upward =
+      t.__attrMap[k] or
+      (rawget(t, "super") and rawget(t, "super")[k])
+    
+    if upward then return upward end
+    
+    local u = rawget(t, "__bottomClass")
+    while u and not rawequal(t, u) do
+      if rawget(u, k) then return rawget(u, k) end
+      u = rawget(u, "super")
     end
-  }
-
-  setmetatable(newClass, newClass._mt)
-  rawset(root, classname,  newClass)
-  root._subclasses:push_back(newClass)
-end
-
-local function initStaticMembers(class)
-  if class._classChunk then
-    local static = class._classChunk()._static
-    if static then
-      rawset(class, "_static", static())
-    else
-      rawset(class, "_static", {})
-    end
+  end,
+  __newindex = function(t, k, v)
+    rawset(t.__attrMap, k, v)
+  end,
+  __eq = function(t, u)
+    return rawget(u, "__attrMap") and (rawequal(t.__attrMap, u.__attrMap))
   end
+}
 
-  for _, subclass in class._subclasses:iterator() do
-    initStaticMembers(subclass)
-  end
-end
-
--- When love isn't avaible, usually when running tests, fallback to lua's
--- native load function.
-local loadScriptFunc = love and love.filesystem.load or loadfile
-
---- Loads and registers a class from it's source file.
--- @param root Parent class.
--- @param classname New class name.
--- @param script Path to lua source file.
-function _M.registerClass(root, classname, script)
-  script = script .. ".lua"
-
-  local chunk, msg
-
-  chunk, msg = loadScriptFunc(script)
-
-  if not chunk then
-    error.errhand(msg)
-    return
-  end
-
-  _registerClass(root, classname, chunk)
-end
-
---- Registers a folder into the classpath.
--- Classes within a folder inherit a class with the same name as this folder,
--- it it exists, otherwise they inherit from the parent of the parent, if it
--- exists too, or so on, recursively.
--- This method registers a folder that doesn't have a source file for it, as a
--- dummy, empty class. 
-function _M.registerClassFolder(root, classname)
-  local newClassFolder = {
-    _classname = classname,
-    _is_folder = true,
-    _super = not rawget(root, "_is_folder") and root or root._super,
-    _subclasses = collection.List.new(),
-    nameAndClassPairs =
-    function(self)
-      return collection.filteredPairs(self,
-        function(k, v)
-          return
-            type(v) == 'table' and
-            v._classname and
-            v._super == root[classname]
-        end
-      )
-    end,
-    getSubclasses = function(self)
-      return self._subclasses
-    end,
-    getRandomSubclasses =
-    function(self, quantity)
-      return collection.randomSubList(self._subclasses, quantity)
-    end,
-    getCompleteName =
-    function()
-      return root.getCompleteName() .. "." .. classname
-    end,
-  }
+local function _newFn(class, bottomClass, attrMap, inplaceTable)
+  local instance = class._chunk()
   
-  rawset(root, classname,  newClassFolder)
-end
-
-local function _resetter(base, oldSuper, ...)
-  rawset(base, "super", oldSuper)
-  return ...
-end
-
--- This method creates a closure that is responsible for setting the correct
--- super to an object, call '_field' and reset it back to the previous super.
-local function createSuperClosure(base, instance, _instance, _field)
-  return function(u, ...)
-    if rawequal(u, instance) then
-      local _oldSuper = rawget(base, "super")
-      rawset(base, "super", rawget(_instance, "_super"))
-      return _resetter(base, _oldSuper, _field(base, ...))
-    else
-      return _field(u, ...)
+  if inplaceTable then
+    for k,v in pairs(instance) do
+      inplaceTable[k] = v
     end
+    instance = inplaceTable
   end
+  
+  bottomClass = bottomClass or instance
+  
+  instance.__attrMap = attrMap
+  instance.__bottomClass = bottomClass
+  
+  if class.super then
+    instance.super = _newFn(class.super, bottomClass, attrMap)
+  end
+  
+  return setmetatable(instance, instanceMt)
 end
 
--- Creates an instance's metatable.
--- @param fieldCache Maps which parent class instance contains a given field.
--- @param closureCache Cache of closure functions that do the setup of "super"
---        attribute and reset it back after the call is made. It exists only as
---        an optimization, because closures are expensive to create.
-local function createMetatable(base, instance, fieldCache, closureCache)
-  return {
-    __index = function(t, k)
-
-      local _instance, _field
-
-      _instance = fieldCache[k]
-      if _instance then _field = _instance._instance[k] end
-
-      if type(_field) ~= "function" then
-        return _field
-      end
-
-      return closureCache[k]
-    end,
-    __newindex = function(t, k, v)
-
-      if type(v) ~= "function" then
-        rawset(base, k, v)
-        return
-      end
-
-      local _instance = fieldCache[k]
-
-      if _instance then
-        rawset(_instance._instance, k, v)
-        closureCache[k] =
-          createSuperClosure(base, instance, _instance, v)
-      else
-        rawset(t._instance, k, v)
-        fieldCache[k] = t
-        closureCache[k] =
-          createSuperClosure(base, instance, instance, v)
-      end
-    end,
-  }
-end
-
-local function initFieldCache(instance, super)
-  for k, v in pairs(instance._instance) do
-    instance._fieldCache[k] = instance
-  end
-
-  if not super then return end
-
-  for k, v in pairs(rawget(super, "_fieldCache")) do
-    if not instance._fieldCache[k] then
-      instance._fieldCache[k] = rawget(super, "_fieldCache")[k]
-    end
-  end
-end
-
-local function initSuperClosureCache(base, instance)
-  instance._closureCache = {}
-
-  for k, v in pairs(instance._fieldCache) do
-    instance._closureCache[k] = createSuperClosure(base, instance, v, v._instance[k])
-  end
-end
-
-local function __createInstance(tb, base, class)
-  local instance = tb or {}
-
-  instance._instance = class._classChunk()
-
-  if instance._instance.new then
-    instance._instance:new()
-  end
-
-  instance._instance._static = nil
-  instance._fieldCache = {}
-
-  base = base or instance
-
-  if class._super and class._super._classChunk then
-    local super = __createInstance(nil, base, class._super)
-    -- this field wont be modified
-    instance._super = super
-  end
-
-  initFieldCache(instance, instance._super)
-  initSuperClosureCache(base, instance)
-
-  setmetatable(instance,
-    createMetatable(
-      base, instance, instance._fieldCache, instance._closureCache
-    )
-  )
-
-  return instance
-end
-
--- Copies fields into the base table for optimal access.
--- Only fields created within the "class:new()" call are copied.
-local function copyFieldsIntoBase(base, source)
-  if not source then
-    return
-  end
-
-  local fieldsToNil = collection.List.new()
-
-  for k, v in pairs(source._instance) do
-    if type(v) ~= "function" then
-      if rawget(base, k) then
-        print("warning: inherited field named " .. k .. " shadows or conflicts with internal use field.")
-      else
-        rawset(base, k, v)
-        fieldsToNil:push_back(k)
-      end
-    end
-  end
-
-  for _, k in fieldsToNil:iterator() do
-    rawset(source._instance, k, nil)
-  end
-
-  copyFieldsIntoBase(base, source._super)
-end
-
-local function _createInstance(class, tb, ...)
-  local instance = __createInstance(tb, nil, class)
-
-  rawset(instance, "class", class)
-  -- this field needs to be adjusted depending on context
-  rawset(instance, "super", rawget(instance, "_super"))
-  rawset(getmetatable(instance), "__gc", function()
-    instance:disable()
-    instance:clearListeners()
-  end)
-
-  copyFieldsIntoBase(instance, instance)
-
+local function newFn(class, ...)
+  local instance = _newFn(class, nil, {class=class})
   if instance.init then
     instance:init(...)
   end
-
   return instance
 end
 
---- Instantiates a class, creating an entity.
--- @param class to instantiate.
--- @param ... additional parameters are passed to instance's init(), usually a
---            Game instance, new instance's parent, layer and an optional
---            cohandler for asynchronous initialization.
-function _M.createInstance(class, ...)
-  return _createInstance(class, nil, ...)
+local function newInplaceFn(class, inplaceTable, ...)
+  local instance = _newFn(class, nil, {class=class}, inplaceTable)
+  if instance.init then
+    instance:init(...)
+  end
+  return instance
 end
 
-function _M.createInstanceInplace(class, tb, ...)
-  return _createInstance(class, tb, ...)
+local classMt = {
+  __call = newFn,
+  __index = function(t, k)
+    return (rawget(t, "_static") and rawget(t, "_static")[k]) or (rawget(t, "super") and rawget(t, "super")[k])
+  end
+}
+
+local classes = {}
+function _M.registerClass(base, classname, script)
+  
+  local newClass = {
+    _chunk = loadfile(script .. ".lua"),    
+    _name = classname, 
+    super = base._chunk and base,
+    _subclasses = collection.List.new(),
+    
+    getSubclasses = function(self) return self._subclasses end,
+    getName = function(self) return self._name end,
+    getCompleteName = function(self)
+      return
+        (self.super and self.super:getCompleteName() .. "." or "") ..
+        self:getName()
+    end,
+     
+    new = newFn,
+    newInplace = newInplaceFn
+  }
+  
+  setmetatable(
+    newClass,
+    classMt
+  )
+
+  rawset(base, classname, newClass)
+  base._subclasses:push_back(newClass)
+end
+
+function _M.registerClassFolder(base, name)
+
+  local folder = {
+    _name = name,
+    super = rawget(base, "_chunk") and base or rawget(base, "super"),
+    _subclasses = collection.List.new(),
+    
+    getSubclasses = function(self) return self._subclasses end,
+    getName = function(self) return self._name end,
+    getCompleteName = function(self)
+      return
+        (self.super and self.super:getCompleteName() .. "." or "") ..
+        self:getName()
+    end,
+  }
+  
+  rawset(base, name, folder)
 end
 
 local function _loadClassesByDir(classroot, dir, classes)
@@ -434,6 +208,19 @@ local function _loadClassesByDir(classroot, dir, classes)
   end
 end
 
+function _M.initStaticMembers(classroot)
+  if classroot._chunk then
+    local static = classroot._chunk().static
+    if static then
+      rawset(classroot, "_static", static())
+    end
+  end
+
+  for _, subclass in classroot._subclasses:iterator() do
+    _M.initStaticMembers(subclass)
+  end
+end
+
 --- Loads classes in a given directory.
 -- Classes are loaded in each folder and subfolder, recursively. Each file
 -- maps to a class and the file name is also the class name. Folders contains
@@ -445,7 +232,7 @@ function _M.loadClassesByDir(classroot, dir)
   local classes = collection.List.new()
 
   _loadClassesByDir(classroot, dir, classes)
-  initStaticMembers(classroot)
+  _M.initStaticMembers(classroot)
 end
 
 return _M

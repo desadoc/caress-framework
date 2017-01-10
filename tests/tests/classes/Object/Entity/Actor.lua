@@ -1431,43 +1431,40 @@ describe["Actor"] = function()
       b_entity:collisionListener(coll_bc)
       c_entity:collisionListener(coll_ca)
     end)
-    --[[
+    
     scenario02(function()
-      b_entity:collisionListener(coll_bc)
-      b_entity:collisionListener(coll_ba)
-      c_entity:collisionListener(coll_cb)
-      c_entity:collisionListener(coll_ca)
+    --  b_entity:collisionListener(coll_bc)
+    --  b_entity:collisionListener(coll_ba)
+    --  c_entity:collisionListener(coll_cb)
+    --  c_entity:collisionListener(coll_ca)
     end)
-    --]]
-    --[[
+    
     scenario02(function()
-      b_entity:collisionListener(coll_bc)
-      c_entity:collisionListener(coll_cb)
-      b_entity:collisionListener(coll_ba)
-      c_entity:collisionListener(coll_ca)
+    --  b_entity:collisionListener(coll_bc)
+    --  c_entity:collisionListener(coll_cb)
+    --  b_entity:collisionListener(coll_ba)
+    --  c_entity:collisionListener(coll_ca)
     end)
-    --]]
-    scenario02(function()
-      c_entity:collisionListener(coll_cb)
-      b_entity:collisionListener(coll_ba)
-      b_entity:collisionListener(coll_bc)
-      c_entity:collisionListener(coll_ca)
-    end)
-    --[[
+    
     scenario02(function()
       c_entity:collisionListener(coll_cb)
-      b_entity:collisionListener(coll_bc)
       b_entity:collisionListener(coll_ba)
+      b_entity:collisionListener(coll_bc)
       c_entity:collisionListener(coll_ca)
     end)
-    --]]
-
+    
+    scenario02(function()
+    --  c_entity:collisionListener(coll_cb)
+    --  b_entity:collisionListener(coll_bc)
+    --  b_entity:collisionListener(coll_ba)
+    --  c_entity:collisionListener(coll_ca)
+    end)
   end
 
 --[[
   ---
   -- This scenario isn't expected to pass until a new reaction algorithm,
-  -- ,maybe "chain", is finished.
+  -- maybe "chain", is finished.
   --
   it["should address these special scenarios"] = function()
     function scenario01(collFunc)

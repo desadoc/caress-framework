@@ -16,11 +16,17 @@
 
 local _class = {}
 
-function _class:new()
-  self._bar = 168
+_class.static = function()
+  return {
+    FOO = 42
+  }
 end
 
 function _class:init()
+end
+
+function _class:foo4()
+  self.bar = 168
 end
 
 return _class
