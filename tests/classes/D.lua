@@ -17,4 +17,3 @@
 local _class = {}
 
 return _class
-
