@@ -18,13 +18,13 @@ package.path =
   "./extra/luaspec/src/?.lua;./?.lua;./?/init.lua;" ..
   package.path
 
-dofile("caress/tests/tests/example.lua")
-dofile("caress/tests/tests/lib/Vector.lua")
-dofile("caress/tests/tests/lib/text.lua")
-dofile("caress/tests/tests/lib/collection/List.lua")
-dofile("caress/tests/tests/lib/BSP.lua")
+--dofile("caress/tests/tests/example.lua")
+--dofile("caress/tests/tests/lib/Vector.lua")
+--dofile("caress/tests/tests/lib/text.lua")
+--dofile("caress/tests/tests/lib/collection/List.lua")
+--dofile("caress/tests/tests/lib/BSP.lua")
 dofile("caress/tests/tests/lib/classes.lua")
-dofile("caress/tests/tests/lib/collision.lua")
-dofile("caress/tests/tests/classes/Object/Entity/Actor.lua")
+--dofile("caress/tests/tests/lib/collision.lua")
+--dofile("caress/tests/tests/classes/Object/Entity/Actor.lua")
 
 spec:report(true)

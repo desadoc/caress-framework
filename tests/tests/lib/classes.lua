@@ -25,7 +25,7 @@ describe["classes"] = function()
     Classes.registerClass(Classes.A, "C", "caress/tests/classes/A/C")
     Classes.registerClass(Classes, "D", "caress/tests/classes/D")
     
-    Classes.initStaticMembers(Classes)
+    Classes:finish()
   end
 
   it["should create objects"] = function()
