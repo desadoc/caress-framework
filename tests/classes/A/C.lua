@@ -25,8 +25,24 @@ end
 function _class:init()
 end
 
+function _class:getSuperSelf()
+  return self.super("getSelf")
+end
+
+function _class:getSelf()
+  return self
+end
+
 function _class:foo4()
   self.bar = 168
+end
+
+function _class:foo8()
+  return self.super("foo8")
+end
+
+function _class:foo9()
+  return 10
 end
 
 return _class

@@ -74,11 +74,11 @@ describe["classes"] = function()
     expect(b1.bar).should_be(43)
     b1:foo2()
     expect(b1.bar).should_be(42)
-    b1.super:foo3()
+    b1.super("foo3")
     expect(b1.bar).should_be(21)
     b1:foo1()
     expect(b1.bar).should_be(22)
-    b1.super:foo3()
+    b1.super("foo3")
     expect(b1.bar).should_be(21)
   end
 
@@ -119,6 +119,35 @@ describe["classes"] = function()
     
     e1:foo7()
     expect(e1.bar).should_be(168)
+  end
+
+  it["should be possible to index tables with objects"] = function()
+    c1 = Classes.A.C:new()
+    
+    t = {}
+    t[c1] = 1
+    
+    expect(t[c1]).should_be(1)
+    expect(t[c1:getSelf()]).should_be(1)
+    expect(t[c1:getSuperSelf()]).should_be(1)
+  end
+
+  it["should be possible to query for methods consistently"] = function()
+    c1 = Classes.A.C:new()
+    
+    expect(c1.foo6 == c1.super.foo6).should_be(true)
+  end
+  
+  it["should call the most specialized implementation of a method"] = function()
+    e1 = Classes.A.C.E:new()
+    
+    expect(e1:foo8()).should_be(10)
+  end
+  
+  it["should have the correct super references after each call"] = function()
+    e1 = Classes.A.C.E:new()
+    
+    expect(e1:onlyA()).should_be(nil)
   end
 
   it["should allow static members and static members inheritance"] = function()

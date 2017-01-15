@@ -23,100 +23,104 @@ local _M = {
   __subclasses = collection.List.new()
 }
 
-local superBaseMt = {
-  __index = function(t, k)
-    if t.__attr[k] then
-      return t.__attr[k]
-    end
+local function superResetter(bottom, super, ...)
+  rawset(bottom, "super", super)
+  return ...
+end
 
-    return t.__bottomClosures[k]
-  end,
-  __newindex = function(t, k, v)
-    t.__attr[k] = v
-  end,
-  __eq = function(t, u)
-    return u.__attr and (t.__attr == u.__attr)
-  end
-}
-
-local fakeSuperMt = {
+local parentMt = {
   __index = function(t, k)
-    return t.__inher[k]
+    return t.class.__inherCache[k]
+      --(t.__instance[k] and t.__bottom.class.__inherCache[k]) or
+      --(rawget(t, "__super") and t.__super[k])
   end,
-  __newindex = function(t, k, v)
-    error.errhand("values aren't supposed to be set on this table: k=" .. tostring(k) .. ", v=" .. tostring(v))
-  end
-}
-
-local bottomMt = {
-  __index = function(t, k)
-    if t.__attr[k] then
-      return t.__attr[k]
+  __call = function(t, fnName, ...)
+    local bottom = t.__bottom
+    
+    local base = t
+    while not rawget(base.__instance, fnName) do
+      base = rawget(base, "__super")
+      if not base then break end
     end
     
-    return t.__inher[k]
-  end,
-  __newindex = function(t, k, v)
-    t.__attr[k] = v
-  end,
-  __eq = function(t, u)
-    return u.__attr and (t.__attr == u.__attr)
+    if not base then
+      error.errhand("Field or method \"" .. fnName .. "\" not found at superclasses. t=" .. t.class.__name .. ", bottom=" .. bottom.class.__name)
+      return
+    end
+    
+    bottom.super = rawget(base, "__super")
+    return superResetter(bottom, t, base.__instance[fnName](bottom, ...))
   end
 }
 
-local function __newFn(class, bottom, bottomClosures, attr)
+local function createSuperCallClosure(newSuper, f)
+  return function(self, ...)
+    local oldSuper = rawget(self, "super")
+    self.super = newSuper
+    return superResetter(self, oldSuper, f(self, ...))
+  end
+end
+
+local bottomMt = {
+  __index = function(bottom, k)
+    return bottom.class.__inherCache[k]
+    --return bottom.__instance[k]
+  end
+}
+
+local function __newFn(class, bottom)
   
-  local base = {}
-  base.__class = class.__chunk()
-  base.__bottom = bottom
-  base.__bottomClosures = bottomClosures
-  base.__attr = attr
-
-  local fake_super = {}
-  fake_super.__inher = class.__inher
-  fake_super.__base = base
-
+  local parent = {}
+  
+  parent.class = class
+  parent.__instance = class.__chunk()
+  parent.__bottom = bottom
+  
   if class.super then
-    base.super = __newFn(class.super, bottom, bottomClosures, attr)
-
+    local super = __newFn(class.super, bottom)
+    parent.__super = super
+    
     local supers = {}
-
-    local _super = base.super.__base
-    while _super do
-      table.insert(supers, _super)
-      _super = _super.super and _super.super.__base
+    while super do
+      table.insert(supers, 1, super)
+      super = rawget(super, "__super")
     end
-
-    fake_super.__supers = supers
+    
+    table.insert(supers, parent)
+    
+    parent.__supers = supers
+  else
+    parent.__supers = {parent}
   end
   
-  setmetatable(base, superBaseMt)
-  setmetatable(fake_super, fakeSuperMt)
-
-  return fake_super
+  setmetatable(parent, parentMt)
+  
+  return parent
 end
 
 local function _newFn(class, inplaceTb, ...)
-
-  local bottom = inplaceTb
-
-  bottom.__class = class.__chunk()
-  bottom.__attr = {class=class}
-  bottom.__inher = class.__inher
-  bottom.__base = bottom
-
+  
+  local bottom = inplaceTb or {}
+  
+  bottom.class = class 
+  bottom.__instance = class.__chunk()
+  
   if class.super then
-    bottom.super = __newFn(class.super, bottom, class.__bottom, bottom.__attr)
+    local super = __newFn(class.super, bottom)
+    bottom.__super = super
+    bottom.super = super
     
     local supers = {}
-    
-    local _super = bottom.super.__base
-    while  _super do
-      table.insert(supers, _super)
-      _super = _super.super and _super.super.__base
+    while super do
+      table.insert(supers, 1, super)
+      super = rawget(super, "__super")
     end
     
+    table.insert(supers, bottom)
+    
     bottom.__supers = supers
+  else
+    bottom.__supers = {bottom}
   end
   
   setmetatable(bottom, bottomMt)
@@ -134,28 +138,6 @@ end
 
 local function newInplaceFn(class, inplaceTb, ...)
   return _newFn(class, inplaceTb, ...)
-end
-
-local function createSuperCallClosure(superIndex, fnName)
-  return function(fake_super, ...)
-    local base = fake_super.__supers[superIndex]
-    local f = base.__class[fnName]
-    return f(base, ...)
-  end
-end
-
-local function createLocalCallClosure(fnName)
-  return function(self, ...)
-    local f = self.__base.__class[fnName]
-    return f(self.__base, ...)
-  end
-end
-
-local function createBottomCallClosure(fnName)
-  return function(superBase, ...)
-    local bottom = superBase.__bottom
-    return bottom[fnName](bottom, ...)
-  end
 end
 
 local classMt = {
@@ -197,6 +179,67 @@ function _M.registerClassFolder(base, name)
   base.__subclasses:push_back(newFolder)
 end
 
+local function createSuperCallClosure(fnName, superIndex)
+  return function(self, ...)
+    local base = self.__supers[superIndex]
+    local f = base.__instance[fnName]
+    
+    local oldSuper = rawget(self, "super")
+    self.super = rawget(base, "__super")
+    
+    return superResetter(self, oldSuper, f(self, ...))
+  end
+end
+
+local function createLocalCallClosure(fnName)
+  return function(self, ...)
+    local f = self.__instance[fnName]
+    
+    local oldSuper = rawget(self, "super")
+    self.super = rawget(self, "__super")
+    
+    return superResetter(self, oldSuper, f(self, ...))
+  end
+end
+
+local function _cacheInherited(class, inherTb, depth, superCache)
+  
+  local instance = class.__chunk()
+  local inherCache = {}
+  
+  if not superCache[depth] then
+    superCache[depth] = {}
+  end
+  
+  for fnName, srcDepth in pairs(inherTb) do
+    if not superCache[srcDepth][fnName] then
+      superCache[srcDepth][fnName] = createSuperCallClosure(fnName, srcDepth)
+    end
+    
+    inherCache[fnName] = superCache[srcDepth][fnName]
+  end
+  
+  for fnName, fnValue in pairs(instance) do
+    if not superCache[depth][fnName] then
+      superCache[depth][fnName] = createSuperCallClosure(fnName, depth)
+    end
+    inherCache[fnName] = superCache[depth][fnName]
+    inherTb[fnName] = depth
+  end
+  
+  rawset(class, "__inherCache", inherCache)
+  
+  for _, subclass in class.__subclasses:iterator() do
+    _cacheInherited(subclass, collection.tableCopy(inherTb), depth+1, superCache)
+  end
+end
+
+function _M.cacheInherited()
+  for _, class in _M.__subclasses:iterator() do
+    _cacheInherited(class, {}, 1, {})
+  end
+end
+
 local function _initStaticMembers(class)
   local staticFn = class.__chunk()._static
   if staticFn then
@@ -214,44 +257,8 @@ function _M.initStaticMembers()
   end
 end
 
-local function _generateInheritanceCache(class, inherTb, depth)
-
-  local classTb = class.__chunk()
-  local inher = {}
-  local bottom = {}
-  
-  for fnName, srcDepth in pairs(inherTb) do
-    inher[fnName] = createSuperCallClosure(depth-srcDepth, fnName)
-  end
-  
-  for fnName, fnValue in pairs(classTb) do
-    inher[fnName] = createLocalCallClosure(fnName)
-  end
-  
-  for fnName, _ in pairs(inher) do
-    bottom[fnName] = createBottomCallClosure(fnName)
-  end
-  
-  rawset(class, "__inher", inher)
-  rawset(class, "__bottom", bottom)
-  
-  for fnName, fnValue in pairs(classTb) do
-    inherTb[fnName] = depth
-  end
-  
-  for _, subclass in class.__subclasses:iterator() do
-    _generateInheritanceCache(subclass, collection.tableCopy(inherTb), depth+1)
-  end
-end
-
-function _M.generateInheritanceCache()
-  for _, subclass in _M.__subclasses:iterator() do
-    _generateInheritanceCache(subclass, {}, 1)
-  end
-end
-
 function _M.finish()
-  _M.generateInheritanceCache()
+  _M.cacheInherited()
   _M.initStaticMembers()
 end
 

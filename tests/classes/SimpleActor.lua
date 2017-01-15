@@ -21,7 +21,7 @@ local collision = require("caress/collision")
 local _class = {}
 
 function _class:init()
-  self.super:init()
+  self.super("init")
   
   self.aabb.z = 1.0
   self.aabb.w = 1.0
@@ -49,7 +49,7 @@ function _class:getCollisionResponseMap(collInfo)
 end
 
 function _class:collisionListener(collInfo)
-  self.super:collisionListener(collInfo)
+  self.super("collisionListener", collInfo)
 end
 
 return _class

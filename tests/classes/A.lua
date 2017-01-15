@@ -26,6 +26,10 @@ function _class:init()
   self.bar = 42
 end
 
+function _class:getSelf()
+  return self
+end
+
 function _class:foo1()
   self.bar = self.bar + 1
 end
@@ -48,6 +52,18 @@ end
 
 function _class:foo6()
   self:foo4()
+end
+
+function _class:foo8()
+  return self:foo9()
+end
+
+function _class:foo9()
+  return 1
+end
+
+function _class:onlyA()
+  return self.super
 end
 
 return _class
