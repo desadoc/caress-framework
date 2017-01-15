@@ -24,6 +24,7 @@ describe["classes"] = function()
     Classes.registerClass(Classes.A, "B", "caress/tests/classes/A/B")
     Classes.registerClass(Classes.A, "C", "caress/tests/classes/A/C")
     Classes.registerClass(Classes, "D", "caress/tests/classes/D")
+    Classes.registerClass(Classes.A.C, "E", "caress/tests/classes/A/C/E")
     
     Classes:finish()
   end
@@ -99,11 +100,25 @@ describe["classes"] = function()
 
   it["should allow to access subclasses methods from super references"] = function()
     c1 = Classes.A.C:new()
+    e1 = Classes.A.C.E:new()
     
     expect(c1.bar).should_be(nil)
+    expect(e1.bar).should_be(170)
     
     c1:foo6()
     expect(c1.bar).should_be(168)
+    
+    e1:foo6()
+    expect(e1.bar).should_be(169)
+    
+    e1.bar = 170
+    expect(e1.bar).should_be(170)
+    
+    e1:foo4()
+    expect(e1.bar).should_be(169)
+    
+    e1:foo7()
+    expect(e1.bar).should_be(168)
   end
 
   it["should allow static members and static members inheritance"] = function()

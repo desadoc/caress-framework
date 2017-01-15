@@ -17,6 +17,8 @@
 local collection  = require("caress/collection")
 local error       = require("caress/error")
 
+local loadScriptFn = love and love.filesystem.load or loadfile
+
 local _M = {
   __subclasses = collection.List.new()
 }
@@ -26,7 +28,7 @@ local superBaseMt = {
     if t.__attr[k] then
       return t.__attr[k]
     end
-    
+
     return t.__bottomClosures[k]
   end,
   __newindex = function(t, k, v)
@@ -42,7 +44,7 @@ local fakeSuperMt = {
     return t.__inher[k]
   end,
   __newindex = function(t, k, v)
-    error.errhand("values at this table aren't supposed to be set: k=" .. tostring(k) .. ", v=" .. tostring(v))
+    error.errhand("values aren't supposed to be set on this table: k=" .. tostring(k) .. ", v=" .. tostring(v))
   end
 }
 
@@ -62,7 +64,7 @@ local bottomMt = {
   end
 }
 
-local function _newFn(class, bottom, bottomClosures, attr)
+local function __newFn(class, bottom, bottomClosures, attr)
   
   local base = {}
   base.__class = class.__chunk()
@@ -75,7 +77,7 @@ local function _newFn(class, bottom, bottomClosures, attr)
   fake_super.__base = base
 
   if class.super then
-    base.super = _newFn(class.super, bottom, bottomClosures, attr)
+    base.super = __newFn(class.super, bottom, bottomClosures, attr)
 
     local supers = {}
 
@@ -94,9 +96,9 @@ local function _newFn(class, bottom, bottomClosures, attr)
   return fake_super
 end
 
-local function newFn(class, ...)
+local function _newFn(class, inplaceTb, ...)
 
-  local bottom = {}
+  local bottom = inplaceTb
 
   bottom.__class = class.__chunk()
   bottom.__attr = {class=class}
@@ -104,7 +106,7 @@ local function newFn(class, ...)
   bottom.__base = bottom
 
   if class.super then
-    bottom.super = _newFn(class.super, bottom, class.__bottom, bottom.__attr)
+    bottom.super = __newFn(class.super, bottom, class.__bottom, bottom.__attr)
     
     local supers = {}
     
@@ -124,6 +126,14 @@ local function newFn(class, ...)
   end
   
   return bottom
+end
+
+local function newFn(class, ...)
+  return _newFn(class, {}, ...)
+end
+
+local function newInplaceFn(class, inplaceTb, ...)
+  return _newFn(class, inplaceTb, ...)
 end
 
 local function createSuperCallClosure(superIndex, fnName)
@@ -157,13 +167,14 @@ local classMt = {
 
 function _M.registerClass(base, classname, script)
   local newClass = {
-    __chunk = loadfile(script .. ".lua"),
+    __chunk = loadScriptFn(script .. ".lua"),
     __name = classname,
     __static = {},
     super = base.__chunk and base or base.super,
     __subclasses = collection.List.new(),
     getSubclasses = function(class) return class.__subclasses end,
-    new = newFn
+    new = newFn,
+    newInplace = newInplaceFn
   }
   
   setmetatable(newClass, classMt)
@@ -228,8 +239,8 @@ local function _generateInheritanceCache(class, inherTb, depth)
     inherTb[fnName] = depth
   end
   
-  for i, subclass in class.__subclasses:iterator() do
-    _generateInheritanceCache(subclass, inherTb, depth+1)
+  for _, subclass in class.__subclasses:iterator() do
+    _generateInheritanceCache(subclass, collection.tableCopy(inherTb), depth+1)
   end
 end
 

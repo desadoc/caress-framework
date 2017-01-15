@@ -30,4 +30,3 @@ function _class:foo4()
 end
 
 return _class
-
