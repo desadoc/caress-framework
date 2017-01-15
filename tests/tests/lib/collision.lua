@@ -31,6 +31,8 @@ describe["collision"] = function()
     classes.registerClass(classes.Object, "Entity", "caress/classeslib/Object/Entity")
     classes.registerClass(classes.Object.Entity, "Actor", "caress/classeslib/Object/Entity/Actor")
     classes.registerClass(classes.Object.Entity.Actor, "SimpleActor", "caress/tests/classes/SimpleActor")
+    
+    classes.finish()
 
     aabb_1 = nil
     aabb_2 = nil

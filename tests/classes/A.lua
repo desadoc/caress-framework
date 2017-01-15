@@ -38,8 +38,16 @@ function _class:foo3()
   self.bar = 21
 end
 
+function _class:foo4()
+  self.bar = 167
+end
+
 function _class:foo5()
   return self
+end
+
+function _class:foo6()
+  self:foo4()
 end
 
 return _class

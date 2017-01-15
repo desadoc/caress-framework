@@ -21,65 +21,149 @@ local _M = {
   __subclasses = collection.List.new()
 }
 
-local instanceMt = {
+local superBaseMt = {
   __index = function(t, k)
-    local attrMap = rawget(t, "__attrMap")
-    if rawget(attrMap, k) then return rawget(attrMap, k) end
+    if t.__attr[k] then
+      return t.__attr[k]
+    end
     
-    local inherTb = rawget(t, "__inher")
-    return rawget(inherTb, k)
+    return t.__bottomClosures[k]
   end,
   __newindex = function(t, k, v)
-    rawset(t.__attrMap, k, v)
+    t.__attr[k] = v
   end,
   __eq = function(t, u)
-    return rawequal(t.__attrMap, u.__attrMap)
+    return u.__attr and (t.__attr == u.__attr)
   end
 }
 
-local function _newFn(class, attrMap)
-  local instance = class.__chunk()
-  
-  instance.__inher = class.__inher
-  instance.__attrMap = attrMap
-  
-  if class.super then
-    instance.super = _newFn(class.super, attrMap)
-    
-    local supers = {}
-    
-    local super = instance.super
-    while super do
-      table.insert(supers, super)
-      super = rawget(super, "super")
+local fakeSuperMt = {
+  __index = function(t, k)
+    return t.__inher[k]
+  end,
+  __newindex = function(t, k, v)
+    error.errhand("values at this table aren't supposed to be set: k=" .. tostring(k) .. ", v=" .. tostring(v))
+  end
+}
+
+local bottomMt = {
+  __index = function(t, k)
+    if t.__attr[k] then
+      return t.__attr[k]
     end
     
-    instance.__supers = supers
+    return t.__inher[k]
+  end,
+  __newindex = function(t, k, v)
+    t.__attr[k] = v
+  end,
+  __eq = function(t, u)
+    return u.__attr and (t.__attr == u.__attr)
+  end
+}
+
+local function _newFn(class, bottom, bottomClosures, attr)
+  
+  local base = {}
+  base.__class = class.__chunk()
+  base.__bottom = bottom
+  base.__bottomClosures = bottomClosures
+  base.__attr = attr
+
+  local fake_super = {}
+  fake_super.__inher = class.__inher
+  fake_super.__base = base
+
+  if class.super then
+    base.super = _newFn(class.super, bottom, bottomClosures, attr)
+
+    local supers = {}
+
+    local _super = base.super.__base
+    while _super do
+      table.insert(supers, _super)
+      _super = _super.super and _super.super.__base
+    end
+
+    fake_super.__supers = supers
   end
   
-  return setmetatable(instance, instanceMt)
+  setmetatable(base, superBaseMt)
+  setmetatable(fake_super, fakeSuperMt)
+
+  return fake_super
 end
 
 local function newFn(class, ...)
-  local instance = _newFn(class, {
-    class=class,
-  })
-  if instance.init then
-    instance:init(...)
+
+  local bottom = {}
+
+  bottom.__class = class.__chunk()
+  bottom.__attr = {class=class}
+  bottom.__inher = class.__inher
+  bottom.__base = bottom
+
+  if class.super then
+    bottom.super = _newFn(class.super, bottom, class.__bottom, bottom.__attr)
+    
+    local supers = {}
+    
+    local _super = bottom.super.__base
+    while  _super do
+      table.insert(supers, _super)
+      _super = _super.super and _super.super.__base
+    end
+    
+    bottom.__supers = supers
   end
-  return instance
+  
+  setmetatable(bottom, bottomMt)
+  
+  if bottom.init then
+    bottom:init(...)
+  end
+  
+  return bottom
+end
+
+local function createSuperCallClosure(superIndex, fnName)
+  return function(fake_super, ...)
+    local base = fake_super.__supers[superIndex]
+    local f = base.__class[fnName]
+    return f(base, ...)
+  end
+end
+
+local function createLocalCallClosure(fnName)
+  return function(self, ...)
+    local f = self.__base.__class[fnName]
+    return f(self.__base, ...)
+  end
+end
+
+local function createBottomCallClosure(fnName)
+  return function(superBase, ...)
+    local bottom = superBase.__bottom
+    return bottom[fnName](bottom, ...)
+  end
 end
 
 local classMt = {
-  __call = newFn
+  __call = newFn,
+  __index = function(t, k)
+    return t.__static[k] or (rawget(t, "super") and t.super[k])
+  end
 }
 
 function _M.registerClass(base, classname, script)
   local newClass = {
     __chunk = loadfile(script .. ".lua"),
-    super = base.__chunk and base,
+    __name = classname,
+    __static = {},
+    super = base.__chunk and base or base.super,
     __subclasses = collection.List.new(),
-    new = newFn,
+    getSubclasses = function(class) return class.__subclasses end,
+    new = newFn
   }
   
   setmetatable(newClass, classMt)
@@ -88,17 +172,34 @@ function _M.registerClass(base, classname, script)
 end
 
 function _M.registerClassFolder(base, name)
+  local newFolder = {
+    __name = name,
+    __static = {},
+    isFolder = function() return true end,
+    super = base.__chunk and base or base.super,
+    __subclasses = collection.List.new(),
+    getSubclasses = function(class) return class.__subclasses end
+  }
 
+  setmetatable(newFolder, classMt)
+  rawset(base, name, newFolder)
+  base.__subclasses:push_back(newFolder)
 end
 
-local function initStaticMembers(classroot)
-
+local function _initStaticMembers(class)
+  local staticFn = class.__chunk()._static
+  if staticFn then
+    class.__static = staticFn()
+  end
+  
+  for _, subclass in class.__subclasses:iterator() do
+    _initStaticMembers(subclass)
+  end
 end
 
-local function createInherCallClosure(fnName, superIndex)
-  return function(self, ...)
-    local super = self.__supers[superIndex]
-    return super[fnName](super, ...)
+function _M.initStaticMembers()
+  for _, class in _M.__subclasses:iterator() do
+    _initStaticMembers(class)
   end
 end
 
@@ -106,14 +207,22 @@ local function _generateInheritanceCache(class, inherTb, depth)
 
   local classTb = class.__chunk()
   local inher = {}
+  local bottom = {}
   
   for fnName, srcDepth in pairs(inherTb) do
-    if not classTb[fnName] then
-      inher[fnName] = createInherCallClosure(fnName, depth-srcDepth)
-    end
+    inher[fnName] = createSuperCallClosure(depth-srcDepth, fnName)
+  end
+  
+  for fnName, fnValue in pairs(classTb) do
+    inher[fnName] = createLocalCallClosure(fnName)
+  end
+  
+  for fnName, _ in pairs(inher) do
+    bottom[fnName] = createBottomCallClosure(fnName)
   end
   
   rawset(class, "__inher", inher)
+  rawset(class, "__bottom", bottom)
   
   for fnName, fnValue in pairs(classTb) do
     inherTb[fnName] = depth
@@ -132,6 +241,7 @@ end
 
 function _M.finish()
   _M.generateInheritanceCache()
+  _M.initStaticMembers()
 end
 
 return _M

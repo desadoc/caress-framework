@@ -34,7 +34,7 @@ describe["classes"] = function()
     c1 = Classes.A.C:new()
     d1 = Classes.D:new()
   end
-  
+
   it["should inherit fields"] = function()
     a1 = Classes.A:new()
     expect(a1.bar).should_be(42)
@@ -44,8 +44,6 @@ describe["classes"] = function()
 
     b1.bar = 84
     expect(b1.bar).should_be(84)
-    expect(b1.super.bar).should_be(84)
-    expect(b1.bar == b1.super.bar).should_be(true)
   end
 
   it["should inherit methods"] = function()
@@ -79,10 +77,10 @@ describe["classes"] = function()
     expect(b1.bar).should_be(21)
     b1:foo1()
     expect(b1.bar).should_be(22)
-    b1.super.foo3(b1)
+    b1.super:foo3()
     expect(b1.bar).should_be(21)
   end
-  
+
   it["should correctly answer if two entities are equal"] = function()
     a1 = Classes.A:new()
     b1 = Classes.A.B:new()
@@ -97,27 +95,17 @@ describe["classes"] = function()
     expect(a1 == b1).should_be(false)
     expect(a1 == c1).should_be(false)
     expect(a1 == d1).should_be(false)
-    
-    expect(a1.super == nil).should_be(true)
-    expect(b1.super == b1).should_be(true)
-    expect(c1.super == c1).should_be(true)
-    expect(d1.super == nil).should_be(true)
-    
-    expect(b1.super == a1).should_be(false)
-    expect(c1.super == a1).should_be(false)
   end
-  
+
   it["should allow to access subclasses methods from super references"] = function()
     c1 = Classes.A.C:new()
     
     expect(c1.bar).should_be(nil)
-    expect(c1.super.bar).should_be(nil)
     
-    c1.super:foo4()
+    c1:foo6()
     expect(c1.bar).should_be(168)
-    expect(c1.super.bar).should_be(168)
   end
-  
+
   it["should allow static members and static members inheritance"] = function()
     C = Classes.A.C
     c1 = Classes.A.C:new()
@@ -131,12 +119,6 @@ describe["classes"] = function()
     expect(c1.class.super.FOO).should_be(21)
     expect(c1.class.BAR).should_be(84)
     expect(c1.class.super.BAR).should_be(84)
-  end
-  
-  it["should correctly change self reference on super calls"] = function()
-    c1 = Classes.A.C:new()
-    
-    expect(rawequal(c1:foo5(), c1.super)).should_be(true)
   end
 
 end

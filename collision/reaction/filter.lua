@@ -96,7 +96,6 @@ function _M:getCollisionResponse(collInfo)
 
   -- if it doesn't have a response map, then it's transparent
   if not entity.getCollisionResponseMap then
-    error("satan: " .. entity.class:getCompleteName())
     return
   end
 
