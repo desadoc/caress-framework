@@ -35,7 +35,7 @@ local game
 local graphicsDevice
 
 function _class:init(parent, layer, coh, spriteAnimation, size)
-  self.super:init(parent, layer, coh)
+  self.super("init", parent, layer, coh)
 
   game = _game
   graphicsDevice = game.graphicsDevice
@@ -66,7 +66,7 @@ function _class:adjustSize(size)
 end
 
 function _class:update(dt)
-  self.super:update(dt)
+  self.super("update", dt)
 
   for _, sprite in ipairs(sprites) do
     local selectedAnimation = animations[sprite.animation]
@@ -95,7 +95,7 @@ function _class:update(dt)
 end
 
 function _class:draw()
-  self.super:draw()
+  self.super("draw")
 
   for i, sprite in ipairs(sprites) do
     local currFrame = self:getCurrentFrame(i)

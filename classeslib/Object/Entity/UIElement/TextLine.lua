@@ -31,7 +31,7 @@ local width
 local aligning
 
 function _class:init(parent, layer, coh, _text, _width, _aligning)
-  self.super:init(parent, layer, coh)
+  self.super("init", parent, layer, coh)
 
   game = _game
 

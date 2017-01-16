@@ -33,7 +33,7 @@ local aligning
 local currIter
 
 function _class:init(parent, layer, coh, _items, _width, _aligning)
-  self.super:init(parent, layer, coh)
+  self.super("init", parent, layer, coh)
 
   game = _game
 

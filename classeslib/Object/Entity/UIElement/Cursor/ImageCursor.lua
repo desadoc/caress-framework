@@ -28,7 +28,7 @@ local image
 local math_ceil = math.ceil
 
 function _class:init(parent, layer, coh, _image)
-  self.super:init(parent, layer, coh)
+  self.super("init", parent, layer, coh)
   
   game = _game
   image = _image

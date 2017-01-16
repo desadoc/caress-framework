@@ -20,7 +20,7 @@ local cb = nil
 local result = nil
 
 function _class:init(coh, _cb)
-  self.super:init(coh)
+  self.super("init", coh)
   cb = _cb
 end
 

@@ -20,7 +20,7 @@ local elapsedTime = 0.0
 local delay = 0.0
 
 function _class:init(coh, _delay)
-  self.super:init(coh)
+  self.super("init", coh)
   
   delay = _delay
 end

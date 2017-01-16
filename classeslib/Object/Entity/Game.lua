@@ -44,7 +44,7 @@ local frameTimeAccum = 0.0
 -- game's root folder. It also initializes asset cache, graphics and input
 -- devices.
 function _class:init(_CONFIG, layers)
-  self.super:init()
+  self.super("init")
 
   CONFIG = _CONFIG
   self.CONFIG = CONFIG
@@ -142,7 +142,7 @@ function _class:update(dt)
 
     local timestep = CONFIG.game.updateTimeStepSize
     while(frameTimeAccum >= timestep) do
-      self.super:update(timestep)
+      self.super("update", timestep)
 
       frameTimeAccum = frameTimeAccum - timestep
     end
@@ -169,7 +169,7 @@ function _class:draw()
 
     gd:clearLayers()
     if not self:isHidden() then
-      self.super:draw()
+      self.super("draw")
     end
 
     gd:setCanvas(canvas)

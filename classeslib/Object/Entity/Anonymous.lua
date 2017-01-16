@@ -33,7 +33,7 @@ function _class:init(parent, layer, coh, _methods)
   if _methods.init then
     _methods.init(self, parent, layer, coh)
   else
-    self.super:init(parent, layer, coh)
+    self.super("init", parent, layer, coh)
   end
   
   methods = _methods
@@ -48,26 +48,18 @@ end
 function _class:main(coh)
   if methods.main then
     methods.main(self, coh)
-  else
-    if self.super.main ~= self.main then
-      self.super:main(coh)
-    end
   end
 end
 
 function _class:update(dt)
   if methods.update then
     methods.update(self, dt)
-  else
-    if self.super.update then self.super:update(dt) end
   end
 end
 
 function _class:draw()
   if methods.draw then
     methods.draw(self)
-  else
-    if self.super.draw then self.super:draw() end
   end
 end
 

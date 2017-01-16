@@ -36,5 +36,5 @@ local n = 100000000
 for i=1,n do
   a:foo1()
   b:foo1()
-  c.super:foo4()
+  c.super("foo4")
 end

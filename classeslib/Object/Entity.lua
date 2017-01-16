@@ -140,7 +140,7 @@ end
 
 --- Updates entity logic.
 -- This method updates coroutines and child entities. When overriding it's
--- important to call self.super:update(dt) within your update method. Also,
+-- important to call self.super("update", dt) within your update method. Also,
 -- it's the parent responsibility to check if childs are paused or hidden
 -- before updating or drawing them, or rather force their update/draw
 -- regardless of their state.
@@ -358,7 +358,7 @@ end
 
 function _class:clearListeners()
   listening = collection.List.new()
-  self.super:clearListeners()
+  self.super("clearListeners")
 end
 
 return _class

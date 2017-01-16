@@ -19,7 +19,7 @@ local List = require("caress/collection").ArrayList
 local _class = {}
 
 function _class:init(coh, conditions)
-  self.super:init(coh)
+  self.super("init", coh)
   
   self.conditions = List.new()
   self.results = {}
@@ -34,7 +34,7 @@ function _class:pause()
     condition:pause()
   end
 
-  self.super:pause()
+  self.super("pause")
 end
 
 function _class:resume()
@@ -42,7 +42,7 @@ function _class:resume()
     condition:resume()
   end
 
-  self.super:resume()
+  self.super("resume")
 end
 
 function _class:update(dt)

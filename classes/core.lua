@@ -31,8 +31,6 @@ end
 local parentMt = {
   __index = function(t, k)
     return t.class.__inherCache[k]
-      --(t.__instance[k] and t.__bottom.class.__inherCache[k]) or
-      --(rawget(t, "__super") and t.__super[k])
   end,
   __call = function(t, fnName, ...)
     local bottom = t.__bottom
@@ -64,7 +62,6 @@ end
 local bottomMt = {
   __index = function(bottom, k)
     return bottom.class.__inherCache[k]
-    --return bottom.__instance[k]
   end
 }
 
@@ -156,7 +153,13 @@ function _M.registerClass(base, classname, script)
     __subclasses = collection.List.new(),
     getSubclasses = function(class) return class.__subclasses end,
     new = newFn,
-    newInplace = newInplaceFn
+    newInplace = newInplaceFn,
+    isA = function(self, class)
+      while self do
+        if self == class then return true end
+        self = rawget(self, "super")
+      end
+    end
   }
   
   setmetatable(newClass, classMt)
@@ -186,6 +189,12 @@ local function createSuperCallClosure(fnName, superIndex)
     
     local oldSuper = rawget(self, "super")
     self.super = rawget(base, "__super")
+    
+    if not f then
+      print("SATAN1: " .. self.class.__name)
+      print("SATAN2: " .. fnName)
+      print("SATAN3: " .. superIndex)
+    end
     
     return superResetter(self, oldSuper, f(self, ...))
   end
@@ -230,7 +239,7 @@ local function _cacheInherited(class, inherTb, depth, superCache)
   rawset(class, "__inherCache", inherCache)
   
   for _, subclass in class.__subclasses:iterator() do
-    _cacheInherited(subclass, collection.tableCopy(inherTb), depth+1, superCache)
+    _cacheInherited(subclass, collection.tableCopy(inherTb), depth+1, collection.tableCopy(superCache, true))
   end
 end
 
