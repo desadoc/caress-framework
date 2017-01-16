@@ -33,7 +33,7 @@ local game
 local graphicsDevice
 
 function _class:init(parent, layer, coh, _text, _px, _py, _limit)
-  self.super("init", parent, layer, coh)
+  self.super:init(parent, layer, coh)
   
   game = _game
   graphicsDevice = game.graphicsDevice
@@ -91,7 +91,7 @@ function _class:main(coh)
 end
 
 function _class:update(dt)
-  self.super("update", dt)
+  self.super:update(dt)
   
   local speed
 

@@ -28,7 +28,7 @@ local innerElement
 local data
 
 function _class:init(parent, layer, coh, _item)
-  self.super("init", parent, layer, coh)
+  self.super:init(parent, layer, coh)
 
   game = _game
 

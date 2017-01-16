@@ -23,7 +23,7 @@ local cb = nil
 local result = nil
 
 function _class:init(coh, _source, _name, _cb)
-  self.super("init", coh)
+  self.super:init(coh)
 
   _cb = _cb or function(evt) return evt end
 
@@ -39,12 +39,12 @@ end
 
 function _class:resume()
   source:addEventListener(name, cb)
-  self.super("resume")
+  self.super:resume()
 end
 
 function _class:pause()
   source:removeEventListener(name, cb)
-  self.super("pause")
+  self.super:pause()
 end
 
 function _class:update(dt)

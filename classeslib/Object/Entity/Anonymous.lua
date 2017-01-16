@@ -33,7 +33,7 @@ function _class:init(parent, layer, coh, _methods)
   if _methods.init then
     _methods.init(self, parent, layer, coh)
   else
-    self.super("init", parent, layer, coh)
+    self.super:init(parent, layer, coh)
   end
   
   methods = _methods

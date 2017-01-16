@@ -35,7 +35,7 @@ local game
 local graphicsDevice
 
 function _class:init(parent, layer, coh, _corner, _aabb, _color)
-  self.super("init", parent, layer, coh)
+  self.super:init(parent, layer, coh)
 
   game = _game
   graphicsDevice = game.graphicsDevice

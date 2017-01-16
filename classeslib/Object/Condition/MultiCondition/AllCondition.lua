@@ -17,7 +17,7 @@
 local _class = {}
 
 function _class:result()
-  self.super("result")
+  self.super:result()
   
   for i=1,self.conditions:size() do
     if not self.results[i] then return nil end

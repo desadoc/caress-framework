@@ -88,7 +88,7 @@ local game
 local graphicsDevice
 
 function _class:init(parent, layer, coh, aniCfg)
-  self.super("init", parent, layer, coh)
+  self.super:init(parent, layer, coh)
 
   game = _game
   graphicsDevice = game.graphicsDevice
@@ -114,7 +114,7 @@ function _class:init(parent, layer, coh, aniCfg)
 end
 
 function _class:update(dt)
-  self.super("update", dt)
+  self.super:update(dt)
 
   if not selectedAnimation then
     return
@@ -151,7 +151,7 @@ function _class:update(dt)
 end
 
 function _class:draw()
-  self.super("draw")
+  self.super:draw()
   local currFrame = self:getCurrentFrame()
   
   if not currFrame then return end

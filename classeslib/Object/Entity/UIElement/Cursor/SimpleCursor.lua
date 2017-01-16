@@ -27,7 +27,7 @@ local game
 local math_floor = math.floor
 
 function _class:init(parent, layer, coh)
-  self.super("init", parent, layer, coh)
+  self.super:init(parent, layer, coh)
 
   game = _game
 
