@@ -33,21 +33,7 @@ local parentMt = {
     return t.class.__inherCache[k]
   end,
   __call = function(t, fnName, ...)
-    local bottom = t.__bottom
-    
-    local base = t
-    while not rawget(base.__instance, fnName) do
-      base = rawget(base, "__super")
-      if not base then break end
-    end
-    
-    if not base then
-      error.errhand("Field or method \"" .. fnName .. "\" not found at superclasses. t=" .. t.class.__name .. ", bottom=" .. bottom.class.__name)
-      return
-    end
-    
-    bottom.super = rawget(base, "__super")
-    return superResetter(bottom, t, base.__instance[fnName](bottom, ...))
+    return t.class.__inherCache[fnName](t, ...)
   end
 }
 
@@ -101,6 +87,7 @@ local function _newFn(class, inplaceTb, ...)
   
   bottom.class = class 
   bottom.__instance = class.__chunk()
+  bottom.__bottom = bottom
   
   if class.super then
     local super = __newFn(class.super, bottom)
@@ -212,22 +199,12 @@ local function createSuperCallClosure(fnName, superIndex)
   return function(self, ...)
     local base = self.__supers[superIndex]
     local f = base.__instance[fnName]
+    local bottom = self.__bottom
     
-    local oldSuper = rawget(self, "super")
-    self.super = rawget(base, "__super")
+    local oldSuper = rawget(bottom, "super")
+    bottom.super = rawget(base, "__super")
     
-    return superResetter(self, oldSuper, f(self, ...))
-  end
-end
-
-local function createLocalCallClosure(fnName)
-  return function(self, ...)
-    local f = self.__instance[fnName]
-    
-    local oldSuper = rawget(self, "super")
-    self.super = rawget(self, "__super")
-    
-    return superResetter(self, oldSuper, f(self, ...))
+    return superResetter(bottom, oldSuper, f(bottom, ...))
   end
 end
 

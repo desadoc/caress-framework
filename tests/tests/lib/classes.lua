@@ -74,11 +74,11 @@ describe["classes"] = function()
     expect(b1.bar).should_be(43)
     b1:foo2()
     expect(b1.bar).should_be(42)
-    b1.super("foo3")
+    b1.super:foo3()
     expect(b1.bar).should_be(21)
     b1:foo1()
     expect(b1.bar).should_be(22)
-    b1.super("foo3")
+    b1.super:foo3()
     expect(b1.bar).should_be(21)
   end
 
