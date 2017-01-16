@@ -23,6 +23,10 @@ classes.registerClass(classes, "A", "caress/tests/classes/A")
 classes.registerClass(classes.A, "B", "caress/tests/classes/A/B")
 classes.registerClass(classes.A, "C", "caress/tests/classes/A/C")
 
+if classes.finish then
+  classes.finish()
+end
+
 local table_insert = table.insert
 
 local a = classes.A:new()
