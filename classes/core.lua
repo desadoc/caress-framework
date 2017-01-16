@@ -144,22 +144,48 @@ local classMt = {
   end
 }
 
+local function isAFn(self, class)
+  while self do
+    if self == class then return true end
+    self = rawget(self, "super")
+  end
+end
+
+local function anonymousClass(class, chunk)
+
+  local anonClass = {
+    __chunk = chunk,
+    __name = "__Anonymous",
+    static = {},
+    super = class,
+    new = newFn,
+    newInplace = newInplaceFn,
+    isA = isAFn
+  }
+  
+  setmetatable(anonClass, classMt)
+  
+  _M._cacheInherited(anonClass)
+  _M._initStaticMembers(anonClass)
+  
+  return anonClass
+end
+
 function _M.registerClass(base, classname, script)
   local newClass = {
     __chunk = loadScriptFn(script .. ".lua"),
     __name = classname,
+    getCompleteName = function(self)
+      return (rawget(self, "super") and self.super:getCompleteName() or "") .. self.__name
+    end,
     __static = {},
     super = base.__chunk and base or base.super,
     __subclasses = collection.List.new(),
     getSubclasses = function(class) return class.__subclasses end,
     new = newFn,
     newInplace = newInplaceFn,
-    isA = function(self, class)
-      while self do
-        if self == class then return true end
-        self = rawget(self, "super")
-      end
-    end
+    isA = isAFn,
+    AnonClass = anonymousClass
   }
   
   setmetatable(newClass, classMt)
@@ -190,12 +216,6 @@ local function createSuperCallClosure(fnName, superIndex)
     local oldSuper = rawget(self, "super")
     self.super = rawget(base, "__super")
     
-    if not f then
-      print("SATAN1: " .. self.class.__name)
-      print("SATAN2: " .. fnName)
-      print("SATAN3: " .. superIndex)
-    end
-    
     return superResetter(self, oldSuper, f(self, ...))
   end
 end
@@ -211,58 +231,71 @@ local function createLocalCallClosure(fnName)
   end
 end
 
-local function _cacheInherited(class, inherTb, depth, superCache)
+local function _queryInheritedMethods(class, inherCache)
+  for fnName, fnClosure in pairs(class.__inherCache) do
+    if not inherCache[fnName] then
+      inherCache[fnName] = fnClosure
+    end
+  end
   
-  local instance = class.__chunk()
+  if class.super then
+    _queryInheritedMethods(class.super, inherCache)
+  end
+end
+
+local function _queryClassDepth(class)
+  local depth = 1
+  while class.super do
+    depth = depth + 1
+    class = class.super
+  end
+  return depth
+end
+
+function _M._cacheInherited(class)
+  
+  local classTb = class.__chunk()
   local inherCache = {}
+  local currDepth = _queryClassDepth(class)
   
-  if not superCache[depth] then
-    superCache[depth] = {}
+  for fnName, fnValue in pairs(classTb) do
+    inherCache[fnName] = createSuperCallClosure(fnName, currDepth)
   end
   
-  for fnName, srcDepth in pairs(inherTb) do
-    if not superCache[srcDepth][fnName] then
-      superCache[srcDepth][fnName] = createSuperCallClosure(fnName, srcDepth)
-    end
-    
-    inherCache[fnName] = superCache[srcDepth][fnName]
-  end
-  
-  for fnName, fnValue in pairs(instance) do
-    if not superCache[depth][fnName] then
-      superCache[depth][fnName] = createSuperCallClosure(fnName, depth)
-    end
-    inherCache[fnName] = superCache[depth][fnName]
-    inherTb[fnName] = depth
+  if class.super then
+    _queryInheritedMethods(class.super, inherCache)
   end
   
   rawset(class, "__inherCache", inherCache)
-  
-  for _, subclass in class.__subclasses:iterator() do
-    _cacheInherited(subclass, collection.tableCopy(inherTb), depth+1, collection.tableCopy(superCache, true))
-  end
 end
 
 function _M.cacheInherited()
-  for _, class in _M.__subclasses:iterator() do
-    _cacheInherited(class, {}, 1, {})
+  local queue = collection.LinkedList.new()
+  queue:append(_M.__subclasses)
+  
+  while not queue:is_empty() do
+    local class = queue:remove_front()
+    _M._cacheInherited(class)
+    queue:append(class.__subclasses)
   end
 end
 
-local function _initStaticMembers(class)
+function _M._initStaticMembers(class)
   local staticFn = class.__chunk()._static
   if staticFn then
     class.__static = staticFn()
   end
   
-  for _, subclass in class.__subclasses:iterator() do
-    _initStaticMembers(subclass)
+  if rawget(class, "__subclasses") then
+    for _, subclass in class.__subclasses:iterator() do
+      _M._initStaticMembers(subclass)
+    end
   end
 end
 
 function _M.initStaticMembers()
   for _, class in _M.__subclasses:iterator() do
-    _initStaticMembers(class)
+    _M._initStaticMembers(class)
   end
 end
 

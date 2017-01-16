@@ -149,6 +149,30 @@ describe["classes"] = function()
     
     expect(e1:onlyA()).should_be(nil)
   end
+  
+  it["should allow anonymous classes"] = function()
+
+    anonClass = Classes.A:AnonClass(function()
+      local _class = {}
+      function _class:init()
+        self.super("init")
+      end
+      function _class:foo2()
+        return self.bar
+      end
+      return _class
+    end)
+
+    anon1 = anonClass:new()
+    expect(anon1.bar).should_be(42)
+
+    anon1:foo1()
+    expect(anon1.bar).should_be(43)
+    
+    anon1:foo6()
+    expect(anon1.bar).should_be(167)
+    expect(anon1:foo2()).should_be(167)
+  end
 
   it["should allow static members and static members inheritance"] = function()
     C = Classes.A.C
