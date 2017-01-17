@@ -35,7 +35,7 @@ local c = classes.A.C:new()
 
 c:foo4()
 
-local n = 100000000
+local n = 100*1000*1000
 
 for i=1,n do
   a:foo1()

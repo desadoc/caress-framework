@@ -23,12 +23,14 @@ local _M = {
   __subclasses = collection.List.new()
 }
 
+local table_insert = table.insert
+
 local objMt = {
   __index = function(t, k)
-    return t.class.__inherCache[k]
+    return t.__inherCache[k]
   end,
   __call = function(t, fnName, ...)
-    return t.class.__inherCache[fnName](t, ...)
+    return t.__inherCache[fnName](t, ...)
   end
 }
 
@@ -37,21 +39,17 @@ local function __newFn(class, bottom)
   local parent = {}
   
   parent.class = class
+  parent.__inherCache = class.__inherCache
   parent.__instance = class.__chunk()
   parent.__bottom = bottom
   
   if class.super then
     local super = __newFn(class.super, bottom)
+    local supers = super.__supers
+    
+    table_insert(supers, parent)
+    
     parent.__super = super
-    
-    local supers = {}
-    while super do
-      table.insert(supers, 1, super)
-      super = rawget(super, "__super")
-    end
-    
-    table.insert(supers, parent)
-    
     parent.__supers = supers
   else
     parent.__supers = {parent}
@@ -66,24 +64,20 @@ local function _newFn(class, inplaceTb, ...)
   
   local bottom = inplaceTb or {}
   
-  bottom.class = class 
+  bottom.class = class
+  bottom.__inherCache = class.__inherCache
   bottom.__instance = class.__chunk()
   bottom.__bottom = bottom
   
   if class.super then
     local super = __newFn(class.super, bottom)
+    local supers = super.__supers
+    
+    table_insert(supers, bottom)
+    
     bottom.__super = super
-    bottom.super = super
-    
-    local supers = {}
-    while super do
-      table.insert(supers, 1, super)
-      super = rawget(super, "__super")
-    end
-    
-    table.insert(supers, bottom)
-    
     bottom.__supers = supers
+    bottom.super = super
   else
     bottom.__supers = {bottom}
   end
