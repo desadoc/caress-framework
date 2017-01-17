@@ -23,11 +23,6 @@ local _M = {
   __subclasses = collection.List.new()
 }
 
-local function superResetter(bottom, super, ...)
-  rawset(bottom, "super", super)
-  return ...
-end
-
 local objMt = {
   __index = function(t, k)
     return t.class.__inherCache[k]
@@ -179,6 +174,11 @@ function _M.registerClassFolder(base, name)
   setmetatable(newFolder, classMt)
   rawset(base, name, newFolder)
   base.__subclasses:push_back(newFolder)
+end
+
+local function superResetter(bottom, super, ...)
+  rawset(bottom, "super", super)
+  return ...
 end
 
 local superCallObjMt = {

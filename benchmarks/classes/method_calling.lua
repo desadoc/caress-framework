@@ -39,14 +39,6 @@ local n = 100000000
 
 for i=1,n do
   a:foo1()
-  b:foo1()
-  c:foo1()
-  
-  a:foo2()
-  b:foo2()
-  c:foo2()
-  
-  a:foo3()
   b:foo3()
-  c:foo3()
+  c:foo4()
 end

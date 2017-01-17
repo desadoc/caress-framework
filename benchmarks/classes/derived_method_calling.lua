@@ -34,10 +34,8 @@ local b = classes.A.B:new()
 local c = classes.A.C:new()
 local e = classes.A.C.E:new()
 
-local n = 100000000
+local n = 300000000
 
 for i=1,n do
-  b:foo1()
   c.super:foo4()
-  e:foo1()
 end
