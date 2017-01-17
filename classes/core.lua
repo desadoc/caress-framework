@@ -28,26 +28,12 @@ local function superResetter(bottom, super, ...)
   return ...
 end
 
-local parentMt = {
+local objMt = {
   __index = function(t, k)
     return t.class.__inherCache[k]
   end,
   __call = function(t, fnName, ...)
     return t.class.__inherCache[fnName](t, ...)
-  end
-}
-
-local function createSuperCallClosure(newSuper, f)
-  return function(self, ...)
-    local oldSuper = rawget(self, "super")
-    self.super = newSuper
-    return superResetter(self, oldSuper, f(self, ...))
-  end
-end
-
-local bottomMt = {
-  __index = function(bottom, k)
-    return bottom.class.__inherCache[k]
   end
 }
 
@@ -76,7 +62,7 @@ local function __newFn(class, bottom)
     parent.__supers = {parent}
   end
   
-  setmetatable(parent, parentMt)
+  setmetatable(parent, objMt)
   
   return parent
 end
@@ -107,7 +93,7 @@ local function _newFn(class, inplaceTb, ...)
     bottom.__supers = {bottom}
   end
   
-  setmetatable(bottom, bottomMt)
+  setmetatable(bottom, objMt)
   
   if bottom.init then
     bottom:init(...)
@@ -195,10 +181,10 @@ function _M.registerClassFolder(base, name)
   base.__subclasses:push_back(newFolder)
 end
 
-local function createSuperCallClosure(fnName, superIndex)
-  return function(self, ...)
-    local base = self.__supers[superIndex]
-    local f = base.__instance[fnName]
+local superCallObjMt = {
+  __call = function(callObj, self, ...)
+    local base = self.__supers[callObj.__superIndex]
+    local f = base.__instance[callObj.__fnName]
     local bottom = self.__bottom
     
     local oldSuper = rawget(bottom, "super")
@@ -206,6 +192,13 @@ local function createSuperCallClosure(fnName, superIndex)
     
     return superResetter(bottom, oldSuper, f(bottom, ...))
   end
+}
+
+local function createSuperCallObj(fnName, superIndex)
+  return setmetatable({
+    __fnName = fnName,
+    __superIndex = superIndex,
+  }, superCallObjMt)
 end
 
 local function _queryInheritedMethods(class, inherCache)
@@ -236,7 +229,7 @@ function _M._cacheInherited(class)
   local currDepth = _queryClassDepth(class)
   
   for fnName, fnValue in pairs(classTb) do
-    inherCache[fnName] = createSuperCallClosure(fnName, currDepth)
+    inherCache[fnName] = createSuperCallObj(fnName, currDepth)
   end
   
   if class.super then

@@ -22,6 +22,7 @@ local classes = require("caress/classes")
 classes.registerClass(classes, "A", "caress/tests/classes/A")
 classes.registerClass(classes.A, "B", "caress/tests/classes/A/B")
 classes.registerClass(classes.A, "C", "caress/tests/classes/A/C")
+classes.registerClass(classes.A.C, "E", "caress/tests/classes/A/C/E")
 
 if classes.finish then
   classes.finish()
@@ -29,16 +30,14 @@ end
 
 local table_insert = table.insert
 
-local a = classes.A:new()
 local b = classes.A.B:new()
 local c = classes.A.C:new()
-
-c:foo4()
+local e = classes.A.C.E:new()
 
 local n = 100000000
 
 for i=1,n do
-  a:foo1()
   b:foo1()
   c.super:foo4()
+  e:foo1()
 end
