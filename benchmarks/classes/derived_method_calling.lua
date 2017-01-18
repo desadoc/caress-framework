@@ -36,6 +36,7 @@ local e = classes.A.C.E:new()
 
 local n = 300*1000*1000
 
+local c_super = c.super
 for i=1,n do
-  c.super:foo4()
+  c_super:foo4()
 end
