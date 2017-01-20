@@ -41,25 +41,13 @@ local game
 local graphicsDevice
 
 --- Initializes a game entity.
--- Game entities may have a parent and be part of a graphical layer. Current
--- game instance is obtained through a global variable.
-function _class:init(parent, layer)  
-  game = _game
+-- Game entities may have a parent. The current game instance is obtained
+-- through a global variable.
+function _class:init(parent)  
+  game = GAME
   graphicsDevice = game and game.graphicsDevice
 
   self.parent = parent
-  
-  if layer then
-    if type(layer) == "string" then
-      self.layer = game.layers[layer]
-    end
-    if type(layer) == "number" then
-      self.layer = layer
-    end
-    if not self.layer then
-      error.errhand("Invalid layer value")
-    end
-  end
 end
 
 function _class:getChildrenByClass(class)
@@ -200,16 +188,11 @@ function _class:isPaused()
   return paused
 end
 
-function _class:drawChild(child, _layer)  
+function _class:drawChild(child)  
   local gd = game.graphicsDevice
-  local layer = child.layer or _layer
-  
+
   if not child:isHidden() and child.draw then
-    if layer then
-      gd:renderTo(function() child:draw() end, layer)
-    else
-      child:draw()
-    end
+    child:draw()
   end
 end
 
@@ -225,8 +208,8 @@ end
 
 --- Renders the entity.
 -- This basic implementation only draws child entities. It is responsibility of
--- parent entity to check if childs are hidden and to switch to the correct
--- layer before rendering them, similarly to what happens at @{update}.
+-- parent entity to check if childs are hidden before rendering them, similarly
+-- to what happens at @{update}.
 function _class:draw()
   self:drawChilds()
 end

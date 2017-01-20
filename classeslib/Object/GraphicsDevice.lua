@@ -29,17 +29,9 @@ local _class = {}
 
 local love_graphics_draw = love.graphics.draw
 
-function _class:init(width, height, layers)
+function _class:init(width, height)
   self.width = width
   self.height = height
-
-  self.canvases = {}
-
-  for layer, depth in pairs(layers) do
-    if not self.canvases[depth] then
-      self.canvases[depth] = love.graphics.newCanvas(width, height)
-    end
-  end
 end
 
 function _class:setDefaultFilter(min, mag, aniso)
@@ -154,57 +146,6 @@ function _class:clear(bgColor)
   end
 end
 
---- Clears all layers.
-function _class:clearLayers()
-  local _canvas = self:getCanvas()
-  local _bgColor = self:getBackgroundColor()
-  
-  for depth, canvas in pairs(self.canvases) do
-    self:setCanvas(canvas)
-    self:clear()
-  end
-  
-  self:setBackgroundColor(_bgColor)
-  self:setCanvas(_canvas)
-end
-
---- Switches to 'target' layer then calls 'func'.
-function _class:renderTo(func, target)
-  local canvas
-  
-  if type(target) == "number" then
-    canvas = self.canvases[target]
-  end
-
-  if getmetatable(target) and target.type and target:type() == "Canvas" then
-    canvas = target
-  end
-
-  if canvas then
-    local _canvas = love.graphics.getCanvas()
-    love.graphics.setCanvas(canvas)
-    func()
-    love.graphics.setCanvas(_canvas)
-  else
-    love.errhand("invalid render target")
-  end
-end
-
-function _class:flush()
-  local depthList = List.new()
-  for depth, _ in pairs(self.canvases) do
-    depthList:push_back(depth)
-  end
-  depthList:sort(nil, "desc")
-
-  self:origin()
-  self:setColor(Vector.color(255, 255, 255))
-  
-  for _, depth in depthList:iterator() do
-    love_graphics_draw(self.canvases[depth])
-  end
-end
-
 local function drawAABBLine(aabb, lineWidth)
   local pos = Vector.new(aabb.x, aabb.y)
   local size = Vector.new(aabb.z, aabb.w)
@@ -298,9 +239,9 @@ function _class:drawBatch(batch)
   love_graphics_draw(batch)
 end
 
-function _class:rawPrintf(text, px, py, limit, align,
+function _class:printf(text, px, py, limit, align,
     r, sx, sy, ox, oy, kx, ky)
-  love.graphics.printf(text, px, py, limit, align, r, sx, sy, ox, oy, kx, ky)
+  love.graphics.printf(text, px, py, limit or 9999, align or "left", r, sx, sy, ox, oy, kx, ky)
 end
 
 return _class

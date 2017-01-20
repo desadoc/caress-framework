@@ -37,19 +37,18 @@ local _class = {}
 local CONFIG
 local gamepad
 local canvas
+local scaling = 2.0
 local frameTimeAccum = 0.0
 
 --- Initializes a Game instance.
 -- Game mantains a reference to game configuration loaded from 'conf.lua' on
 -- game's root folder. It also initializes asset cache, graphics and input
 -- devices.
-function _class:init(_CONFIG, layers)
+function _class:init(_CONFIG)
   self.super:init()
 
   CONFIG = _CONFIG
   self.CONFIG = CONFIG
-
-  self.layers = layers
 
   math.randomseed(os.time())
 
@@ -66,7 +65,7 @@ function _class:init(_CONFIG, layers)
   canvas:setFilter("nearest", "nearest", 1)
 
   self.assetCache = AssetCache.new()
-  self.graphicsDevice = classes.Object.GraphicsDevice(tgtWidth, tgtHeight, self.layers)
+  self.graphicsDevice = classes.Object.GraphicsDevice(tgtWidth, tgtHeight)
   self.graphicsDevice:setDefaultFilter("nearest", "nearest", 1)
 end
 
@@ -121,6 +120,10 @@ function _class:getMaxScaling()
   return math.min(maxScalingX, maxScalingY)
 end
 
+function _class:setScaling(amount)
+  scaling = amount
+end
+
 --- Returns the internal game resolution,
 -- This resolution is scaled proportionaly to screen size by an integer number.
 function _class:getTargetDimensions()
@@ -154,7 +157,6 @@ function _class:_drawCanvas(canvas)
 
   local canvasWidth, canvasHeight = self:getTargetDimensions()
 
-  local scaling = self:getMaxScaling()
   local x = (CONFIG.window.width - canvasWidth*scaling)/2.0
   local y = (CONFIG.window.height - canvasHeight*scaling)/2.0
   love.graphics.draw(canvas, x, y, 0, scaling, scaling)
@@ -165,18 +167,14 @@ function _class:draw()
   local gd = self.graphicsDevice
 
   if gd then
-    gd:clear()
+    gd:setCanvas(canvas)
+    canvas:clear()
 
-    gd:clearLayers()
     if not self:isHidden() then
       self.super:draw()
     end
 
-    gd:setCanvas(canvas)
-    canvas:clear()
-    gd:flush()
     gd:setCanvas()
-
     self:_drawCanvas(canvas)
   end
 end
