@@ -88,17 +88,18 @@ function _class:updateCoroutines(dt)
   local cos = coroutines:clone()
 
   for iter, co in cos:iterator() do
-    if not co:isDead() and not co:isPaused() then
+    if co:getStatus() == "dead" then
+      coroutinesToRemove:push_back(co)
+    elseif not co:isPaused() then
       co:update(dt)
       updatedCoroutines:push_back(co)
-    end
-    if co:isDead() then
-      coroutinesToRemove:push_back(co)
     end
   end
 
   for iter, co in updatedCoroutines:iterator() do
-    co:checkResultAndResume()
+    if co:getStatus() == "suspended" then
+      co:checkResultAndResume()
+    end
   end
 
   for iter, co in coroutines:iterator() do

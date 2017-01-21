@@ -30,14 +30,6 @@ function _class:init(coh)
   self.coh = coh
 end
 
-function _class:disable()
-  self:pause()
-end
-
-function _class:enable()
-  self:resume()
-end
-
 function _class:pause()
   paused = true
 end
@@ -51,7 +43,8 @@ function _class:isPaused()
 end
 
 function _class:wait()
-  return self.coh:wait(self)
+  self.coh:setCondition(self)
+  return self.coh:wait()
 end
 
 return _class

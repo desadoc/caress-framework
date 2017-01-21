@@ -30,10 +30,13 @@ local List      = require("caress/collection").List
 local _class = {}
 
 local table_insert = table.insert
+local co_status = coroutine.status
 
 local dead = false
-local frameTimeLimit = nil
+local paused = false
+local condition
 
+local frameTimeLimit = nil
 function _class.setFrameTimeLimit(limit)
   frameTimeLimit = limit or 12/1000.0
 end
@@ -72,28 +75,30 @@ function _class:run(...)
 end
 
 function _class:resumeCoroutine(...)
-  if not self:isDead() then
+  if self:getStatus() == "suspended" then
     self.resumeTime = love.timer.getTime()
     __run(self, ...)
   end
 end
 
---- Resumes a coroutine.
-function _class:resume()
-  -- check if it's really paused.
-  if not self.condition or not self.condition:isPaused() then
-    return
-  end
+function _class:unpause()
+  if not paused then return end
 
-  self.condition:resume()
+  paused = false
+
+  if condition then
+    condition:resume()
+  end
 end
 
 function _class:pause()
-  if not self.condition or self.condition:isPaused() then
-    return
-  end
+  if paused then return end
 
-  self.condition:pause()
+  paused = true
+
+  if condition then
+    condition:pause()
+  end
 end
 
 function _class:kill()
@@ -107,28 +112,24 @@ end
 -- for every coroutine it has spawned and not yet ended.
 -- @param ... Additional parameters to pass to task function
 function _class:update(...)
-  self.condition:update(...)
+  return condition and condition:update(...)
 end
 
+--- Resumes a coroutine.
 function _class:checkResultAndResume()
-  local r = {self.condition:result()}
+  local r = {condition:result()}
 
   if r[1] then
     self:resumeCoroutine(unpack(r))
   end
 end
 
---- Returns true if it hasn't finished.
-function _class:isDead()
-  return dead or coroutine.status(self.co) == "dead"
+function _class:getStatus()
+  return co_status(self.co)
 end
 
 function _class:isPaused()
-  return not self:isDead() and self.condition and self.condition:isPaused()
-end
-
-function _class:isSuspended()
-  return coroutine.status(self.co) == "suspended"
+  return paused
 end
 
 --- Returns elapsed time since last time coroutine was resumed.
@@ -143,30 +144,26 @@ function _class:checkTimeLimit()
   end
 end
 
---- Makes coroutine yield and wait until 'condition' is satisfied.
-function _class:wait(condition)
-  condition = condition or self:custom(function() return true end)
+--- Sets the current active condition
+function _class:setCondition(_condition)
+  if condition then
+    condition:pause()
+  end
 
-  self.condition = condition
-  condition:enable()
-  local r = {coroutine.yield()}
-  condition:disable()
-  self.condition = nil
+  condition = _condition
 
-  return unpack(r)
+  if condition and not self:isPaused() then
+    condition:resume()
+  end
 end
 
-function _class:runAndWait(condition, coh, ...)
+--- Makes coroutine yield and wait until 'condition' is satisfied.
+function _class:wait()
   condition = condition or self:custom(function() return true end)
 
-  self.condition = condition
-  condition:enable()
-  
-  coh:run(...)
-  
   local r = {coroutine.yield()}
-  condition:disable()
-  self.condition = nil
+  condition:pause()
+  condition = nil
 
   return unpack(r)
 end
