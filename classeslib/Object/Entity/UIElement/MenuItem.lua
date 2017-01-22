@@ -27,10 +27,10 @@ local game
 local innerElement
 local data
 
-function _class:init(parent, layer, coh, _item)
-  self.super:init(parent, layer, coh)
+function _class:init(parent, coh, _item)
+  self.super:init(parent, coh)
 
-  game = _game
+  game = GAME
 
   innerElement = _item.element
   data = _item.data

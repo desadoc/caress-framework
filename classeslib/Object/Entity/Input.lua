@@ -44,10 +44,10 @@ local gamepad
 
 local game
 
-function _class:init(parent, _, coh, _gamepad)
-  self.super:init(parent, nil, coh)
+function _class:init(parent, coh, _gamepad)
+  self.super:init(parent)
 
-  game = _game
+  game = GAME
 
   gamepad = _gamepad
 

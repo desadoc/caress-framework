@@ -27,8 +27,8 @@ local _class = {}
 local rectangle
 local layout
 
-function _class:init(parent, layer, coh)
-  self.super:init(parent, layer, coh)
+function _class:init(parent, coh)
+  self.super:init(parent, coh)
   
   rectangle = Vector.new()
 end

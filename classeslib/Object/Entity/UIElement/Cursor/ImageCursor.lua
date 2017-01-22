@@ -27,14 +27,14 @@ local image
 
 local math_ceil = math.ceil
 
-function _class:init(parent, layer, coh, _image)
-  self.super:init(parent, layer, coh)
-  
-  game = _game
+function _class:init(parent, coh, _image)
+  self.super:init(parent, coh)
+
+  game = GAME
   image = _image
-  
+
   self:setSize(Vector.new(image:getWidth(), image:getHeight()))
-  
+
   self:setFusedOnX(false)
   self:setFusedOnY(true)
 end

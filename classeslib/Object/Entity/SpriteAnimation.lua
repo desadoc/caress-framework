@@ -87,10 +87,10 @@ local selectedAnimation = nil
 local game
 local graphicsDevice
 
-function _class:init(parent, layer, coh, aniCfg)
-  self.super:init(parent, layer, coh)
+function _class:init(parent, coh, aniCfg)
+  self.super:init(parent)
 
-  game = _game
+  game = GAME
   graphicsDevice = game.graphicsDevice
   local gd = graphicsDevice
 

@@ -32,29 +32,29 @@ local width
 local aligning
 local currIter
 
-function _class:init(parent, layer, coh, _items, _width, _aligning)
-  self.super:init(parent, layer, coh)
+function _class:init(parent, coh, _items, _width, _aligning)
+  self.super:init(parent, coh)
 
-  game = _game
+  game = GAME
 
   items = _items or List.new{
     {text="CHANGEME_1", data="changeme_1"},
     {text="CHANGEME_2", data="changeme_2"}
   }
-  
+
   width = _width or 9999
   aligning = _aligning or "left"
-  
+
   currIter = items:begin()
-  
+
   self:setSize(Vector.new(0, game.graphicsDevice:getFont():getHeight()))
 end
 
 function _class:draw()
   local gd = game.graphicsDevice
-  
+
   local text = items:at(currIter).text
-  
+
   local actualText
   if type(text) == "string" then
     actualText = text
@@ -63,7 +63,7 @@ function _class:draw()
     actualText = text()
   end
   
-  gd:rawPrintf(actualText, self:getPosition().x, self:getPosition().y, width, aligning)
+  gd:printf(actualText, self:getPosition().x, self:getPosition().y, width, aligning)
 end
 
 function _class:next()
@@ -71,7 +71,7 @@ function _class:next()
     currIter = items:begin()
     return
   end
-  
+
   currIter = items:next(currIter)
 end
 
@@ -80,7 +80,7 @@ function _class:previous()
     currIter = items:finish()
     return
   end
-  
+
   currIter = items:previous(currIter)
 end
 

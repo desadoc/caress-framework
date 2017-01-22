@@ -26,10 +26,10 @@ local game
 
 local math_floor = math.floor
 
-function _class:init(parent, layer, coh)
-  self.super:init(parent, layer, coh)
+function _class:init(parent, coh)
+  self.super:init(parent, coh)
 
-  game = _game
+  game = GAME
 
   self:setSize(Vector.new(12, 12))
 

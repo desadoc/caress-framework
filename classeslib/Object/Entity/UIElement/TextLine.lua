@@ -30,21 +30,21 @@ local text
 local width
 local aligning
 
-function _class:init(parent, layer, coh, _text, _width, _aligning)
-  self.super:init(parent, layer, coh)
+function _class:init(parent, coh, _text, _width, _aligning)
+  self.super:init(parent, coh)
 
-  game = _game
+  game = GAME
 
   text = _text or "CHANGEME"
   width = _width or 9999
   aligning = _aligning or "left"
-  
+
   self:setSize(Vector.new(0, game.graphicsDevice:getFont():getHeight()))
 end
 
 function _class:draw()
   local gd = game.graphicsDevice
-  
+
   local actualText
   if type(text) == "string" then
     actualText = text
@@ -52,8 +52,8 @@ function _class:draw()
   if type(text) == "function" then
     actualText = text()
   end
-  
-  gd:rawPrintf(actualText, self:getPosition().x, self:getPosition().y, width, aligning)
+
+  gd:printf(actualText, self:getPosition().x, self:getPosition().y, width, aligning)
 end
 
 return _class

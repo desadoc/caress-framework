@@ -159,7 +159,7 @@ _class._static = function()
   end
 
   methods.imageCursor = function(coh, imageFilename)
-    return UIElement.Cursor.ImageCursor(nil, nil, coh, _game.assetCache:load(imageFilename))
+    return UIElement.Cursor.ImageCursor(nil, nil, coh, GAME.assetCache:load(imageFilename))
   end
 
   return methods
@@ -178,10 +178,10 @@ local layout
 local game
 local graphicsDevice
 
-function _class:init(parent, layer, coh, params)
-  self.super:init(parent, layer, coh)
+function _class:init(parent, coh, params)
+  self.super:init(parent, coh)
 
-  game = _game
+  game = GAME
   graphicsDevice = game.graphicsDevice
 
   params = params or {}
@@ -200,7 +200,7 @@ function _class:init(parent, layer, coh, params)
   items = List.new()
 
   for _, item in params.items:iterator() do
-    items:push_back(self:create(UIElement.MenuItem, nil, coh, item))
+    items:push_back(self:create(UIElement.MenuItem, coh, item))
   end
 
   layout = params.layout or self.class.gridLayout(true, 2, 360, nil, 60)

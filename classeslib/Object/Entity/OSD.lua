@@ -34,10 +34,10 @@ local text = nil
 local game
 local graphicsDevice
 
-function _class:init(parent, layer, coh, _corner, _aabb, _color)
-  self.super:init(parent, layer, coh)
+function _class:init(parent, coh, _corner, _aabb, _color)
+  self.super:init(parent)
 
-  game = _game
+  game = GAME
   graphicsDevice = game.graphicsDevice
 
   if _corner == 'top left' then
@@ -111,7 +111,7 @@ function _class:draw()
     align = "left"
   end
 
-  gd:rawPrintf(text, x, y, limit, align)
+  gd:printf(text, x, y, limit, align)
   gd:setColor(_color)
   gd:pop()
 end

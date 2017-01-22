@@ -32,10 +32,10 @@ local text, px, py, limit, progress, _progress
 local game
 local graphicsDevice
 
-function _class:init(parent, layer, coh, _text, _px, _py, _limit)
-  self.super:init(parent, layer, coh)
-  
-  game = _game
+function _class:init(parent, coh, _text, _px, _py, _limit)
+  self.super:init(parent, coh)
+
+  game = GAME
   graphicsDevice = game.graphicsDevice
 
   local font = game.graphicsDevice:getFont()
@@ -92,7 +92,7 @@ end
 
 function _class:update(dt)
   self.super:update(dt)
-  
+
   local speed
 
   if game.input:isDown("a") or game.input:isDown("b") then
@@ -100,14 +100,14 @@ function _class:update(dt)
   else
     speed = baseSpeed
   end
-  
+
   _progress = _progress + speed*dt
   progress = math.modf(_progress)
 end
 
 function _class:draw()
   local gd = graphicsDevice
-  gd:rawPrintf(string_sub(text, 1, progress), px, py, limit)
+  gd:printf(string_sub(text, 1, progress), px, py, limit)
 end
 
 return _class

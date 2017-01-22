@@ -108,7 +108,7 @@ function _class:flushUserConfig()
 end
 
 function _class:main(coh)
-  self.input = self:create(Input, nil, coh, gamepad):start()
+  self.input = self:create(Input, coh, gamepad):start()
 end
 
 function _class:getMaxScaling()

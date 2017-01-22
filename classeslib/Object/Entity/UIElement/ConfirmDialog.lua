@@ -34,10 +34,10 @@ local currSelOption
 local game
 local graphicsDevice
 
-function _class:init(parent, layer, coh, params)
-  self.super:init(parent, layer, coh)
+function _class:init(parent, coh, params)
+  self.super:init(parent, coh)
 
-  game = _game
+  game = GAME
   graphicsDevice = game.graphicsDevice
 
   params = params or {}
@@ -124,9 +124,9 @@ function _class:draw()
     }, highlightColor)
   end
 
-  gd:rawPrintf(title, pos.x - size.x*0.5, pos.y + size.y*0.1, size.x, "center", 0.0, 1.0, 1.0)
-  gd:rawPrintf("No", pos.x - size.x*0.5, pos.y + size.y*0.5, size.x*0.5, "center", 0.0, 1.0, 1.0)
-  gd:rawPrintf("Yes", pos.x, pos.y + size.y*0.5, size.x*0.5, "center", 0.0, 1.0, 1.0)
+  gd:printf(title, pos.x - size.x*0.5, pos.y + size.y*0.1, size.x, "center", 0.0, 1.0, 1.0)
+  gd:printf("No", pos.x - size.x*0.5, pos.y + size.y*0.5, size.x*0.5, "center", 0.0, 1.0, 1.0)
+  gd:printf("Yes", pos.x, pos.y + size.y*0.5, size.x*0.5, "center", 0.0, 1.0, 1.0)
 end
 
 return _class

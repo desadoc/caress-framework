@@ -34,10 +34,10 @@ local animations = nil
 local game
 local graphicsDevice
 
-function _class:init(parent, layer, coh, spriteAnimation, size)
-  self.super:init(parent, layer, coh)
+function _class:init(parent, coh, spriteAnimation, size)
+  self.super:init(parent)
 
-  game = _game
+  game = GAME
   graphicsDevice = game.graphicsDevice
   local gd = graphicsDevice
 
@@ -47,8 +47,6 @@ function _class:init(parent, layer, coh, spriteAnimation, size)
 
   size = size or 0
   self:adjustSize(size)
-
-  self.parent = parent
 end
 
 function _class:adjustSize(size)
@@ -56,7 +54,7 @@ function _class:adjustSize(size)
   sprites = {}
   for i=1,size do
     sprites[i] = {}
-  
+
     sprites[i].animation = "__none"
     sprites[i].position = Vector.new()
     sprites[i].color = Vector.color(255, 0, 255)

@@ -84,10 +84,10 @@ end
 
 local processors = {}
 
-function processors.animf(self, aniCfg, parent, layer, coh)
+function processors.animf(self, aniCfg, parent, coh)
   return parent:create(
     classes.Object.Entity.SpriteAnimation,
-    layer, coh, aniCfg
+    coh, aniCfg
   )
 end
 
@@ -106,14 +106,12 @@ end
 function _M.new()
   local _new = {
     cache = {},
-    game = _game,
+    game = GAME,
     loaders = collection.tableCopy(loaders),
     processors = collection.tableCopy(processors)
   }
-  
-  setmetatable(_new, _M)
-  
-  return _new
+
+  return setmetatable(_new, _M)
 end
 
 --- Loads an asset.
