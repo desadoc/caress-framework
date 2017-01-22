@@ -178,8 +178,11 @@ local layout
 local game
 local graphicsDevice
 
+local super
+
 function _class:init(parent, coh, params)
   self.super:init(parent, coh)
+  super = self.super
 
   game = GAME
   graphicsDevice = game.graphicsDevice
@@ -292,7 +295,7 @@ end
 
 function _class:update(dt)
   cursor:setItem(cursorState.item)
-  self.super:update(dt)
+  super:update(dt)
 end
 
 function _class:draw()

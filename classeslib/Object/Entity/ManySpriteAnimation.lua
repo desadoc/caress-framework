@@ -27,6 +27,8 @@ local Vector        = require("caress/Vector")
 
 local _class = {}
 
+local super
+
 local sprites
 
 local animations = nil
@@ -36,6 +38,7 @@ local graphicsDevice
 
 function _class:init(parent, coh, spriteAnimation, size)
   self.super:init(parent)
+  super = self.super
 
   game = GAME
   graphicsDevice = game.graphicsDevice
@@ -64,7 +67,7 @@ function _class:adjustSize(size)
 end
 
 function _class:update(dt)
-  self.super:update(dt)
+  super:update(dt)
 
   for _, sprite in ipairs(sprites) do
     local selectedAnimation = animations[sprite.animation]
@@ -93,7 +96,7 @@ function _class:update(dt)
 end
 
 function _class:draw()
-  self.super:draw()
+  super:draw()
 
   for i, sprite in ipairs(sprites) do
     local currFrame = self:getCurrentFrame(i)

@@ -34,6 +34,8 @@ local Input     = classes.Object.Entity.Input
 
 local _class = {}
 
+local super
+
 local CONFIG
 local gamepad
 local canvas
@@ -46,6 +48,7 @@ local frameTimeAccum = 0.0
 -- devices.
 function _class:init(_CONFIG)
   self.super:init()
+  super = self.super
 
   CONFIG = _CONFIG
   self.CONFIG = CONFIG
@@ -145,7 +148,7 @@ function _class:update(dt)
 
     local timestep = CONFIG.game.updateTimeStepSize
     while(frameTimeAccum >= timestep) do
-      self.super:update(timestep)
+      super:update(timestep)
 
       frameTimeAccum = frameTimeAccum - timestep
     end
@@ -171,7 +174,7 @@ function _class:draw()
     canvas:clear()
 
     if not self:isHidden() then
-      self.super:draw()
+      super:draw()
     end
 
     gd:setCanvas()

@@ -32,8 +32,11 @@ local text, px, py, limit, progress, _progress
 local game
 local graphicsDevice
 
+local super
+
 function _class:init(parent, coh, _text, _px, _py, _limit)
   self.super:init(parent, coh)
+  super = self.super
 
   game = GAME
   graphicsDevice = game.graphicsDevice
@@ -91,7 +94,7 @@ function _class:main(coh)
 end
 
 function _class:update(dt)
-  self.super:update(dt)
+  super:update(dt)
 
   local speed
 

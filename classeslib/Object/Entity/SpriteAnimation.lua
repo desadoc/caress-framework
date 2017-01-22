@@ -72,6 +72,8 @@ local Vector        = require("caress/Vector")
 
 local _class = {}
 
+local super
+
 local position = Vector.new()
 local scaling = Vector.new(1.0, 1.0)
 local rotation = 0.0
@@ -89,6 +91,7 @@ local graphicsDevice
 
 function _class:init(parent, coh, aniCfg)
   self.super:init(parent)
+  super = self.super
 
   game = GAME
   graphicsDevice = game.graphicsDevice
@@ -114,7 +117,7 @@ function _class:init(parent, coh, aniCfg)
 end
 
 function _class:update(dt)
-  self.super:update(dt)
+  super:update(dt)
 
   if not selectedAnimation then
     return
@@ -151,9 +154,9 @@ function _class:update(dt)
 end
 
 function _class:draw()
-  self.super:draw()
+  super:draw()
   local currFrame = self:getCurrentFrame()
-  
+
   if not currFrame then return end
 
   graphicsDevice:drawSprite(

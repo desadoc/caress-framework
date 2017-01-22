@@ -30,8 +30,11 @@ local collisionOffset   = collision.positionOffset
 
 local _class = {}
 
+local super
+
 function _class:init(...)
   self.super:init(...)
+  super = self.super
 
   self.pos = Vector.new()
   self.vel = Vector.new()
@@ -59,7 +62,7 @@ end
 -- Position shouldn't be set manually, it's already done by this super class
 -- and doing it will cause errors.
 function _class:update(dt)
-  self.super:update(dt)
+  super:update(dt)
 
   self.collReaction:update(dt)
   self.collisions = self.collReaction:getDirectCollisions()
