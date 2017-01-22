@@ -57,12 +57,12 @@ end
 -- This method is equals to new with the single difference of making 'w'
 -- coordinate, the alpha channel, to default to 255 instead of 0.
 function _M.color(r, g, b, a)
-  return setmetatable({
-    x = r or 0,
-    y = g or 0,
-    z = b or 0,
-    w = a or 255,
-  })
+  return _M.new(
+    r or 0,
+    g or 0,
+    b or 0,
+    a or 255
+  )
 end
 
 --- Return true if vectors are equals.
