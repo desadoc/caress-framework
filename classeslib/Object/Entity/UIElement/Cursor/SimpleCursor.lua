@@ -32,7 +32,7 @@ function _class:init(parent, layer, coh)
   game = _game
 
   self:setSize(Vector.new(12, 12))
-  
+
   self:setFusedOnX(false)
   self:setFusedOnY(true)
 end

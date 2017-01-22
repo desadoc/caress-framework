@@ -38,8 +38,8 @@ end
 
 function _M:cleanup()
   self.preCollInfo = {
-    vel = Vector.new_cpy(self.entity:getVelocity()),
-    pos = Vector.new_cpy(self.entity:getPosition()),
+    vel = self.entity:getVelocity():cpy(),
+    pos = self.entity:getPosition():cpy(),
   }
 
   self.colls = collection.List.new()

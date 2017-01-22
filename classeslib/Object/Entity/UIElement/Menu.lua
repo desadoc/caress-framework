@@ -67,7 +67,7 @@ _class._static = function()
         for _, item in items:iterator() do
 
           if item.itemParams.offset then
-            Vector.add(offset, item.itemParams.offset, offset)
+            offset = item.itemParams.offset + offset
           end
 
           item:setRectangle(Vector.new(
@@ -99,7 +99,7 @@ _class._static = function()
           return {item = self.grid[1][1], pos = Vector.new(1, 1)}
         end
 
-        local pos = Vector.new_cpy(cursorState.pos)
+        local pos = cursorState.pos:cpy()
 
         local gridIter
 
@@ -145,7 +145,7 @@ _class._static = function()
           gridIter(pos)
           local item = self.grid[pos.x][pos.y]
           if item then
-            return {item = item, pos = Vector.new_cpy(pos)}
+            return {item = item, pos = pos:cpy()}
           end
         end
       end

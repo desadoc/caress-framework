@@ -38,7 +38,7 @@ function _class:getRectangle()
 end
 
 function _class:setRectangle(rect)
-  rectangle = Vector.new_cpy(rect)
+  rectangle = rect:cpy()
 end
 
 function _class:getPosition()

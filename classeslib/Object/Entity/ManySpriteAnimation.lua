@@ -116,7 +116,7 @@ function _class:getPosition(i)
 end
 
 function _class:setPosition(i, _position)
-  sprites[i].position = Vector.new_cpy(_position)
+  sprites[i].position = _position:cpy()
 end
 
 function _class:getCurrentAnimation(i)

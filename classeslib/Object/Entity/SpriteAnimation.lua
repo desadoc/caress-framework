@@ -176,7 +176,7 @@ function _class:getPosition()
 end
 
 function _class:setPosition(_position)
-  position = Vector.new_cpy(_position)
+  position = _position:cpy()
 end
 
 function _class:getScaling()
@@ -184,7 +184,7 @@ function _class:getScaling()
 end
 
 function _class:setScaling(_scaling)
-  scaling = Vector.new_cpy(_scaling)
+  scaling = _scaling:cpy()
 end
 
 function _class:getRotation()
@@ -200,7 +200,7 @@ function _class:getOriginOffset()
 end
 
 function _class:setOriginOffset(_offset)
-  originOfs = Vector.new_cpy(_offset)
+  originOfs = _offset:cpy()
 end
 
 function _class:getShearing()
@@ -208,7 +208,7 @@ function _class:getShearing()
 end
 
 function _class:setShearing(_shearing)
-  shearing = Vector.new_cpy(_shearing)
+  shearing = _shearing:cpy()
 end
 
 function _class:getCurrentAnimation()

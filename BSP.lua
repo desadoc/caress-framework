@@ -513,7 +513,7 @@ function _M:update(item, aabb)
     return
   end
 
-  if Vector.equals(self.item_data[item].currentAABB, aabb) then
+  if self.item_data[item].currentAABB == aabb then
     return
   end
 

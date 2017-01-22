@@ -64,14 +64,14 @@ function _M.createCollObj(self, source, collider, side, time)
 
   if self and self.class then
     collInfo.selfInfo = {
-      pos = Vector.new_cpy(self:getPosition()),
-      vel = Vector.new_cpy(self:getVelocity())
+      pos = self:getPosition():cpy(),
+      vel = self:getVelocity():cpy()
     }
   end
 
   collInfo.colliderInfo = collider and collider.class and {
-    pos = Vector.new_cpy(collider:getPosition()),
-    vel = Vector.new_cpy(collider:getVelocity())
+    pos = collider:getPosition():cpy(),
+    vel = collider:getVelocity():cpy()
   } or {
     pos = Vector.new(collider.x, collider.y),
     vel = Vector.new(0.0, 0.0)
