@@ -167,7 +167,7 @@ local function drawAABBLine(aabb, lineWidth)
 end
 
 local function drawAABBFill(aabb)
-  local r_pos = {x = aabb.x, y = aabb.y}
+  local r_pos = {x = aabb.x-aabb.z/2.0, y = aabb.y}
   love.graphics.rectangle(
     "fill", r_pos.x, r_pos.y,
     aabb.z, aabb.w
