@@ -162,10 +162,11 @@ function _class:_drawCanvas(canvas)
 
   local x = (CONFIG.window.width - canvasWidth*scaling)/2.0
   local y = (CONFIG.window.height - canvasHeight*scaling)/2.0
+  love.graphics.setColor(255, 255, 255, 255)
   love.graphics.draw(canvas, x, y, 0, scaling, scaling)
 end
 
---- Draws childs then merges layers to screen.
+--- Draws childs then draws canvas with scaling.
 function _class:draw()
   local gd = self.graphicsDevice
 
