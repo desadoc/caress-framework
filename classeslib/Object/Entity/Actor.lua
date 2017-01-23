@@ -97,6 +97,11 @@ function _class:getSize()
   return Vector.new(self.aabb.z, self.aabb.w)
 end
 
+function _class:setSize(x, y)
+  self.aabb.z = x
+  self.aabb.w = y
+end
+
 function _class:getShape(collGroup)
   return self.shapes[collGroup]
 end
