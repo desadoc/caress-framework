@@ -29,8 +29,9 @@ local game
 local text
 local width
 local aligning
+local color
 
-function _class:init(parent, coh, _text, _width, _aligning)
+function _class:init(parent, coh, _text, _width, _aligning, _color)
   self.super:init(parent, coh)
 
   game = GAME
@@ -38,6 +39,7 @@ function _class:init(parent, coh, _text, _width, _aligning)
   text = _text or "CHANGEME"
   width = _width or 9999
   aligning = _aligning or "left"
+  color = _color or Vector.color(255, 255, 255)
 
   self:setSize(Vector.new(0, game.graphicsDevice:getFont():getHeight()))
 end
@@ -53,6 +55,7 @@ function _class:draw()
     actualText = text()
   end
 
+  gd:setColor(color)
   gd:printf(actualText, self:getPosition().x, self:getPosition().y, width, aligning)
 end
 
