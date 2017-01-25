@@ -384,8 +384,10 @@ function _M:collisionReactionCB(collInfo, response)
   local entity = self.entity
 
   local time = collInfo.time
-  local colliderPos = collInfo.colliderInfo and
-    collInfo.colliderInfo.pos or {x=collInfo.collider.x, y=collInfo.collider.y}
+  local colliderPos =
+    collInfo.colliderInfo and collInfo.colliderInfo.pos or 
+    not collInfo.collider.getPosition and {x=collInfo.collider.x, y=collInfo.collider.y} or
+    collInfo.collider:getPosition()
   local colliderSize = collInfo.collider.getSize and
     collInfo.collider:getSize() or
     {x=collInfo.collider.z, y=collInfo.collider.w}
