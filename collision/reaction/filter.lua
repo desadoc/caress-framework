@@ -437,10 +437,6 @@ function _M:collisionReactionCB(collInfo, response)
           entity.vel.x,
           response.velocity
         )
-
-        if collDirS then
-          entity:emit("on_ground", collInfo)
-        end
       end
     end
   end
