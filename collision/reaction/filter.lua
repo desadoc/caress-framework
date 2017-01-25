@@ -186,8 +186,6 @@ local function calcResponse(collInfo)
   local b = collInfo.colliderResponse
 
   if not a or not b then
-    --if not a then error("satan, not a") end
-    --if not b then error("satan, not b") end
     return
   end
   if a:is_empty() or b:is_empty() then return end
