@@ -170,7 +170,7 @@ function _class:resume()
   paused = false
 
   for iter, co in coroutines:iterator() do
-    co:resume()
+    co:unpause()
   end
 
   for _, child in self:getChildren():iterator() do
