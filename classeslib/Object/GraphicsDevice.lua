@@ -147,7 +147,7 @@ function _class:clear(bgColor)
 end
 
 local function drawAABBLine(aabb, lineWidth)
-  local pos = Vector.new(aabb.x, aabb.y)
+  local pos = Vector.new(aabb.x-aabb.z/2.0, aabb.y)
   local size = Vector.new(aabb.z, aabb.w)
 
   lineWidth = lineWidth or 1.0
