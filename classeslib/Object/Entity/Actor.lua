@@ -32,6 +32,8 @@ local _class = {}
 
 local super
 
+local bspQueryAABB = Vector.new()
+
 function _class:init(...)
   self.super:init(...)
   super = self.super
@@ -40,6 +42,8 @@ function _class:init(...)
   self.vel = Vector.new()
   self.aabb = Vector.new()
   self.shapes = {}
+  
+  self:_updateBspQueryAABB()
 
   self.collReaction = collision.reaction.new(self)
 end
@@ -100,6 +104,8 @@ end
 function _class:setSize(x, y)
   self.aabb.z = x
   self.aabb.w = y
+
+  self:_updateBspQueryAABB()
 end
 
 function _class:getShape(collGroup)
@@ -113,17 +119,20 @@ end
 function _class:_updateAABB()
   self.aabb.x = self.pos.x
   self.aabb.y = self.pos.y
+
+  self:_updateBspQueryAABB()
+end
+
+function _class:_updateBspQueryAABB()
+  Vector.cpy(self.aabb, bspQueryAABB)
+
+  bspQueryAABB.y = bspQueryAABB.y - bspQueryAABB.w/2
+  bspQueryAABB.w = bspQueryAABB.w * 2
+  bspQueryAABB.z = bspQueryAABB.z * 2
 end
 
 function _class:getBspQueryAABB()
-  local queryAABB = Vector.new()
-  Vector.cpy(self:getAABB(), queryAABB)
-
-  queryAABB.y = queryAABB.y - queryAABB.w/2
-  queryAABB.w = queryAABB.w * 2
-  queryAABB.z = queryAABB.z * 2
-
-  return queryAABB
+  return bspQueryAABB
 end
 
 return _class
