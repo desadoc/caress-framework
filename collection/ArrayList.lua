@@ -120,9 +120,9 @@ function _M.reverseIterator(self)
   return
     function(self, state)
       state = state - 1
-      if state == 0 then return end
+      if state <= 0 then return end
       return state, self[state]
-    end, self, self:size()
+    end, self, self:size() + 1
 end
 
 function _M:begin()
