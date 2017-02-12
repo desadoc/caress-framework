@@ -85,6 +85,7 @@ local currentFrame = 1
 
 local animations = nil
 local selectedAnimation = nil
+local selectedAnimationName = nil
 
 local game
 local graphicsDevice
@@ -218,6 +219,10 @@ function _class:getCurrentAnimation()
   return selectedAnimation
 end
 
+function _class:getCurrentAnimationName()
+  return selectedAnimationName
+end
+
 function _class:getCurrentFrame()
   return selectedAnimation and selectedAnimation.frames[currentFrame]
 end
@@ -234,6 +239,7 @@ end
 
 function _class:setAnimation(animation)
   selectedAnimation = animations[animation]
+  selectedAnimationName = animation
   elapsedTime = 0
   currentFrame = 1
 end

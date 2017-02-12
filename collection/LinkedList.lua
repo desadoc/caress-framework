@@ -133,6 +133,15 @@ function _M.iterator(self)
     end, self, self.head
 end
 
+function _M.reverseIterator(self)
+  return
+    function(self, state)
+      state = state.previous
+      if state == self.head then return end
+      return state, state.item
+    end, self, self.tail
+end
+
 function _M.iterator2(list1, list2, body)
   local iter1 = list1.head.next
   local iter2 = list2.head.next

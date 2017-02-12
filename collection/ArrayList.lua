@@ -116,6 +116,15 @@ function _M:iterator()
   return ipairs(self)
 end
 
+function _M.reverseIterator(self)
+  return
+    function(self, state)
+      state = state - 1
+      if state == 0 then return end
+      return state, self[state]
+    end, self, self:size()
+end
+
 function _M:begin()
   return 1
 end

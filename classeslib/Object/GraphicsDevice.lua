@@ -74,6 +74,10 @@ function _class:setScissor(x, y, width, height)
   love.graphics.setScissor(x, y, width, height)
 end
 
+function _class:setShader(shader)
+  love.graphics.setShader(shader)
+end
+
 function _class:getFont()
   return love.graphics.getFont()
 end
