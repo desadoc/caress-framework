@@ -226,9 +226,6 @@ function _class:draw(obj, x, y, sx, sy, r, ox, oy, kx, ky)
   sy = sy or 1.0
   r = r or 0.0
 
-  local width = obj:getWidth() * sx
-  local height = obj:getHeight() * sy
-
   x = x or 0.0
   y = y or 0.0
 
