@@ -23,11 +23,16 @@
 local _class = {}
 
 local spriteSheet
-local spriteData
+local quad
+local width
+local height
 
 function _class:init(_spriteSheet, _spriteData)
   spriteSheet = _spriteSheet
-  spriteData = _spriteData
+
+  quad    = _spriteData.quad
+  width   = _spriteData.width
+  height  = _spriteData.height
 end
 
 function _class:getSpriteSheet()
@@ -35,15 +40,15 @@ function _class:getSpriteSheet()
 end
 
 function _class:getQuad()
-  return spriteData.quad
+  return quad
 end
 
 function _class:getWidth()
-  return spriteData.width
+  return width
 end
 
 function _class:getHeight()
-  return spriteData.height
+  return height
 end
 
 return _class
