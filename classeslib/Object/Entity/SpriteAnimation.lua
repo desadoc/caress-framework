@@ -145,8 +145,7 @@ function _class:update(dt)
         currentFrame = 1
         elapsedTime = elapsedTime - currFrameTime
       else
-        selectedAnimation = nil
-        return
+        elapsedTime = 0
       end
     end
 

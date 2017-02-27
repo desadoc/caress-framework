@@ -85,6 +85,8 @@ function _class:update(dt)
             if selectedAnimation.loop then
               sprite.currentFrame = 1
               sprite.elapsedTime = sprite.elapsedTime - currFrameTime
+            else
+              sprite.elapsedTime = 0
             end
           end
 
