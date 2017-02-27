@@ -53,6 +53,10 @@ function _M:cpy(v)
   return _M.new(self.x, self.y, self.z, self.w)
 end
 
+function _M:unpack()
+  return self.x, self.y, self.z, self.w
+end
+
 --- Returns a Vector to represent a color.
 -- This method is equals to new with the single difference of making 'w'
 -- coordinate, the alpha channel, to default to 255 instead of 0.
@@ -239,9 +243,8 @@ function _M:normalize()
   local l = self:length()
   if l > 0.0 then
     self:div(l):cpy(self)
-  else
-    error("zero length vector", 2)
   end
+  return self
 end
 
 function _M:cross2(v)
