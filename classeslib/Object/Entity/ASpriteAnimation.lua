@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,9 @@
 -- timing and possibly more information like relative position and size.
 -- An animation file may contain more than one animation, as the example below.
 --
--- Fields position, size and rect aren't mandatory optional. Position, size and
+-- This is an abstract class, users need to implement the drawSprite method.
+--
+-- Fields position, size and rect aren't mandatory. Position, size and
 -- image may be defined at any level inside the structure and deeper fields
 -- override values inherited from less nested levels, eg., you may specify image
 -- a single time directly at the root and it will apply to every animation and
@@ -67,18 +69,13 @@ return {
 }
 ]]
 
-local collection    = require("caress/collection")
-local Vector        = require("caress/Vector")
+local collection    = require("collection")
+local Vector        = require("Vector")
 
 local _class = {}
 
 local super
 
-local position = Vector.new()
-local scaling = Vector.new(1.0, 1.0)
-local rotation = 0.0
-local originOfs = Vector.new()
-local shearing = Vector.new()
 local color = Vector.color(255, 0, 255)
 local elapsedTime = 0.0
 local currentFrame = 1
@@ -87,18 +84,9 @@ local animations = nil
 local selectedAnimation = nil
 local selectedAnimationName = nil
 
-local game
-local graphicsDevice
-
-function _class:init(parent, coh, aniCfg)
+function _class:init(parent, coh, assetCache, aniCfg)
   self.super:init(parent)
   super = self.super
-
-  game = GAME
-  graphicsDevice = game.graphicsDevice
-  local gd = graphicsDevice
-
-  local assetCache = game.assetCache
 
   animations = collection.tableCopy(aniCfg, true)
 
@@ -159,11 +147,7 @@ function _class:draw()
 
   if not currFrame then return end
 
-  graphicsDevice:drawSprite(
-    currFrame.spriteSheet:getSprite(currFrame.spriteIndex),
-    position.x, position.y, rotation, scaling.x, scaling.y,
-    originOfs.x, originOfs.y, shearing.x, shearing.y
-  )
+  self:drawSprite(currFrame.spriteSheet:getSprite(currFrame.spriteIndex))
 end
 
 function _class:getAnimations()
@@ -172,46 +156,6 @@ end
 
 function _class:setElapsedTime(time)
   elapsedTime = time
-end
-
-function _class:getPosition()
-  return position
-end
-
-function _class:setPosition(_position)
-  position = _position:cpy()
-end
-
-function _class:getScaling()
-  return scaling
-end
-
-function _class:setScaling(_scaling)
-  scaling = _scaling:cpy()
-end
-
-function _class:getRotation()
-  return rotation
-end
-
-function _class:setRotation(_rotation)
-  rotation = _rotation
-end
-
-function _class:getOriginOffset()
-  return originOfs
-end
-
-function _class:setOriginOffset(_offset)
-  originOfs = _offset:cpy()
-end
-
-function _class:getShearing()
-  return shearing
-end
-
-function _class:setShearing(_shearing)
-  shearing = _shearing:cpy()
 end
 
 function _class:getCurrentAnimation()

@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,7 @@ require "luaspec"
 
 describe["List"] = function()
   before = function()
-    List = require("caress/collection").List
+    List = require("collection").List
 
     l = List.new()
     m = List.new()
@@ -227,9 +227,9 @@ describe["List"] = function()
       expect(l:find(item)).should_be(iter)
     end
   end
-  
+
   it["should answer if it contains an item"] = function()
-    
+
     l:push_back(1)
     l:push_back(2)
     l:push_back(4)
@@ -242,14 +242,14 @@ describe["List"] = function()
     expect(l:contains(4)).should_be(true)
     expect(l:contains(5)).should_be(true)
     expect(l:contains(6)).should_be(false)
-    
+
     l:clear()
-    
+
     l:push_back("a")
     l:push_back("b")
     l:push_back("d")
     l:push_back("e")
-    
+
     expect(l:contains("z")).should_be(false)
     expect(l:contains("a")).should_be(true)
     expect(l:contains("b")).should_be(true)
@@ -257,21 +257,21 @@ describe["List"] = function()
     expect(l:contains("d")).should_be(true)
     expect(l:contains("e")).should_be(true)
     expect(l:contains("f")).should_be(false)
-    
+
     l:clear()
-    
+
     local a = {}
     local b = {}
     local c = {}
     local d = {}
     local e = {}
     local f = nil
-    
+
     l:push_back(a)
     l:push_back(b)
     l:push_back(d)
     l:push_back(e)
-    
+
     expect(l:contains(nil)).should_be(false)
     expect(l:contains(a)).should_be(true)
     expect(l:contains(b)).should_be(true)

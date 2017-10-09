@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -14,10 +14,10 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local collection  = require("caress/collection")
-local error       = require("caress/error")
+local collection  = require("collection")
+local error       = require("error")
 
-local _M = require("caress/classes/core")
+local _M = require("classes/core")
 
 local function _loadClassesByDir(classroot, dir, classes)
   local files = love.filesystem.getDirectoryItems(dir)

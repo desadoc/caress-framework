@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -16,9 +16,8 @@
 
 --- Input class.
 --
--- An instance of this class is created at Game and made available on
--- 'game.input'. The game instance then passes all love input events to it, and
--- it translates these love events as @{Object} events.
+-- An instance of this class is created somwhere and receives events, which it
+-- translates into @{Object} events.
 --
 -- Entities interested in input events should add themselves as listeners
 -- of events sent by this class by using either @{Object.Entity}'s on/off API
@@ -31,7 +30,7 @@
 --
 -- @classmod Object.Entity.Input
 
-local collection    = require("caress/collection")
+local collection    = require("collection")
 
 local _class = {}
 
@@ -41,15 +40,13 @@ local reverseMapping
 local lastActiveDevice
 
 local gamepad
+local mapping
 
-local game
-
-function _class:init(parent, coh, _gamepad)
+function _class:init(parent, coh, inputMapping, _gamepad)
   self.super:init(parent)
 
-  game = GAME
-
   gamepad = _gamepad
+  mapping = inputMapping
 
   self:loadMapping()
 end
@@ -60,8 +57,8 @@ end
 
 function _class:loadMapping()
   mapping = {}
-  mapping.keyboard = game.CONFIG.game.inputMapping.keyboard
-  mapping.gamepad = game.CONFIG.game.inputMapping.gamepad
+  mapping.keyboard = mapping.keyboard
+  mapping.gamepad = mapping.gamepad
 
   reverseMapping = {}
   reverseMapping.keyboard = {}
@@ -83,10 +80,10 @@ end
 function _class:update(dt)
   for iter, item in inputEvents:iterator() do
     if item.type == "keypressed" then
-      self:emit("input.keypressed", item)
+      self:emit("keypressed", item)
     end
     if item.type == "keyreleased" then
-      self:emit("input.keyreleased", item)
+      self:emit("keyreleased", item)
     end
   end
 

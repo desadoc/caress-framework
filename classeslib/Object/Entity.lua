@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -14,17 +14,17 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---- A game entity.
+--- An entity.
 --
 -- An entity is a dynamic object, which can send and receive events, have
 -- childs and multiple caress coroutines in execution, besides being drawable
--- and updateable. Most game object will inherit from this class.
+-- and updateable. Most game objects will inherit from this class.
 --
 -- @classmod Object.Entity
 
-local collection      = require("caress/collection")
-local classes         = require("caress/classes")
-local error           = require("caress/error")
+local collection      = require("collection")
+local classes         = require("classes")
+local error           = require("error")
 
 local _class = {}
 
@@ -37,16 +37,8 @@ local hidden = true
 
 local listening = collection.List.new()
 
-local game
-local graphicsDevice
-
---- Initializes a game entity.
--- Game entities may have a parent. The current game instance is obtained
--- through a global variable.
-function _class:init(parent)  
-  game = GAME
-  graphicsDevice = game and game.graphicsDevice
-
+--- Initializes an entity. Entities may have a parent.
+function _class:init(parent)
   self.parent = parent
 end
 
@@ -189,9 +181,7 @@ function _class:isPaused()
   return paused
 end
 
-function _class:drawChild(child)  
-  local gd = game.graphicsDevice
-
+function _class:drawChild(child)
   if not child:isHidden() and child.draw then
     child:draw()
   end
@@ -258,9 +248,9 @@ function _class:createCo(func)
       func(self, ...)
     end
   )
-  
+
   coroutines:push_back(coh)
-  
+
   return coh
 end
 

@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -59,8 +59,8 @@ describe["An Example"] = function()
   end
 
   it["should demonstrate that require always return the same cached value"] = function()
-    local module_1 = require("caress/tests/example_module")
-    local module_2 = require("caress/tests/example_module")
+    local module_1 = require("tests/example_module")
+    local module_2 = require("tests/example_module")
 
     expect(module_1.barPlusPlus()).should_be(1)
     expect(module_2.barPlusPlus()).should_be(2)

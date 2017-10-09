@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -22,29 +22,19 @@
 --
 -- @classmod Object.Entity.ManySpriteAnimation
 
-local collection    = require("caress/collection")
-local Vector        = require("caress/Vector")
+local collection    = require("collection")
+local Vector        = require("Vector")
 
 local _class = {}
 
 local super
 
 local sprites
-
 local animations = nil
 
-local game
-local graphicsDevice
-
-function _class:init(parent, coh, spriteAnimation, size)
+function _class:init(parent, coh, assetCache, spriteAnimation, size)
   self.super:init(parent)
   super = self.super
-
-  game = GAME
-  graphicsDevice = game.graphicsDevice
-  local gd = graphicsDevice
-
-  local assetCache = game.assetCache
 
   animations = spriteAnimation:getAnimations()
 
@@ -102,24 +92,12 @@ function _class:draw()
 
   for i, sprite in ipairs(sprites) do
     local currFrame = self:getCurrentFrame(i)
-
-    graphicsDevice:drawSprite(
-      currFrame.spriteSheet:getSprite(currFrame.spriteIndex),
-      sprite.position.x, sprite.position.y
-    )
+    self:drawSprite(currFrame.spriteSheet:getSprite(currFrame.spriteIndex))
   end
 end
 
 function _class:setElapsedTime(i, time)
   sprites[i].elapsedTime = time
-end
-
-function _class:getPosition(i)
-  return sprites[i].position
-end
-
-function _class:setPosition(i, _position)
-  sprites[i].position = _position:cpy()
 end
 
 function _class:getCurrentAnimation(i)
@@ -151,10 +129,6 @@ function _class:checkAnimation(i, animation)
   if animation ~= sprites[i].animation then
     self:setAnimation(i, animation)
   end
-end
-
-function _class:setColor(i, _color)
-  sprites[i].color = _color
 end
 
 return _class

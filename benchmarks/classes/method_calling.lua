@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -17,11 +17,11 @@
 package.path =
   "./?.lua;./?/init.lua;" .. package.path
 
-local classes = require("caress/classes")
+local classes = require("classes")
 
-classes.registerClass(classes, "A", "caress/tests/classes/A")
-classes.registerClass(classes.A, "B", "caress/tests/classes/A/B")
-classes.registerClass(classes.A, "C", "caress/tests/classes/A/C")
+classes.registerClass(classes, "A", "tests/classes/A")
+classes.registerClass(classes.A, "B", "tests/classes/A/B")
+classes.registerClass(classes.A, "C", "tests/classes/A/C")
 
 if classes.finish then
   classes.finish()

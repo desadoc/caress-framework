@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -18,14 +18,14 @@ require "luaspec"
 
 describe["text"] = function()
   before = function()
-    text = require "caress/text"
+    text = require("text")
   end
 
   it["should tokenize strings with plain delimiters"] = function()
 
     local str
     local tokens
-    
+
     str = "The quick brown fox jumps over the lazy dog"
     tokens = text.tokenize(str, " ")
 
@@ -43,7 +43,7 @@ describe["text"] = function()
     tokens = text.tokenize(str, "  ")
 
     expect(tokens[1]).should_be("The quick brown fox jumps over the lazy dog")
-   
+
     str = " The quick brown fox jumps over the lazy dog "
     tokens = text.tokenize(str, " ")
 
@@ -163,9 +163,9 @@ describe["text"] = function()
     expect(lines[8]).should_be("opq")
     expect(lines[9]).should_be("rstuv")
     expect(lines[10]).should_be("xyzw.")
-    
+
     lines = text.breakText(str, limitFunction(9))
-    
+
     expect(lines[1]).should_be("Abc, de")
     expect(lines[2]).should_be("fghi j")
     expect(lines[3]).should_be("klm")
@@ -174,9 +174,9 @@ describe["text"] = function()
     expect(lines[6]).should_be("hijklmn")
     expect(lines[7]).should_be("opq rstuv")
     expect(lines[8]).should_be("xyzw.")
-    
+
     lines = text.breakText(str, limitFunction(10))
-    
+
     expect(lines[1]).should_be("Abc, de")
     expect(lines[2]).should_be("fghi j klm")
     expect(lines[3]).should_be("nopqrst. A")
@@ -184,27 +184,27 @@ describe["text"] = function()
     expect(lines[5]).should_be("hijklmn")
     expect(lines[6]).should_be("opq rstuv")
     expect(lines[7]).should_be("xyzw.")
-    
+
     lines = text.breakText(str, limitFunction(11))
-    
+
     expect(lines[1]).should_be("Abc, de")
     expect(lines[2]).should_be("fghi j klm")
     expect(lines[3]).should_be("nopqrst. A")
     expect(lines[4]).should_be("bcde fg")
     expect(lines[5]).should_be("hijklmn opq")
     expect(lines[6]).should_be("rstuv xyzw.")
-    
+
     lines = text.breakText(str, limitFunction(12))
-    
+
     expect(lines[1]).should_be("Abc, de fghi")
     expect(lines[2]).should_be("j klm")
     expect(lines[3]).should_be("nopqrst. A")
     expect(lines[4]).should_be("bcde fg")
     expect(lines[5]).should_be("hijklmn opq")
     expect(lines[6]).should_be("rstuv xyzw.")
-    
+
     lines = text.breakText(str, limitFunction(15))
-    
+
     expect(lines[1]).should_be("Abc, de fghi j")
     expect(lines[2]).should_be("klm nopqrst. A")
     expect(lines[3]).should_be("bcde fg hijklmn")
@@ -212,4 +212,3 @@ describe["text"] = function()
   end
 
 end
-

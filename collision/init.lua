@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -26,15 +26,15 @@
 
 local _M = {}
 
-_M.base = require("caress/collision/base")
+_M.base = require("collision/base")
 
-_M.detection = require("caress/collision/detection")
+_M.detection = require("collision/detection")
 
 _M.reaction = {}
 
-_M.reaction.basic   = require("caress/collision/reaction/basic")
-_M.reaction.filter  = require("caress/collision/reaction/filter")
-_M.reaction.chain   = require("caress/collision/reaction/chain")
+_M.reaction.basic   = require("collision/reaction/basic")
+_M.reaction.filter  = require("collision/reaction/filter")
+_M.reaction.chain   = require("collision/reaction/chain")
 
 _M.reaction.new = 
 function(...)

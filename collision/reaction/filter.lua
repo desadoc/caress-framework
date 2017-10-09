@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -14,12 +14,12 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local Vector      = require("caress/Vector")
-local geom        = require("caress/geom")
-local collection  = require("caress/collection")
+local Vector      = require("Vector")
+local geom        = require("geom")
+local collection  = require("collection")
 
-local base        = require("caress/collision/base")
-local common      = require("caress/collision/reaction/common")
+local base        = require("collision/base")
+local common      = require("collision/reaction/common")
 
 local _M = {}
 _M.__index = _M

@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -20,13 +20,13 @@
 
 local _M = {}
 
-_M.LinkedList = require("caress/collection/LinkedList")
-_M.ArrayList = require("caress/collection/ArrayList")
+_M.LinkedList = require("collection/LinkedList")
+_M.ArrayList = require("collection/ArrayList")
 
 -- default List implementation is ArrayList, because it's usually faster.
 _M.List = _M.ArrayList
 
-_M.Enum = require("caress/collection/Enum")
+_M.Enum = require("collection/Enum")
 
 --- Returns a new table with values from table[i1] to table[i2].
 -- @param table Original table.
@@ -103,7 +103,7 @@ local function _tableToString(table, deep, indenting)
         end
       else
         local _v = tostring(v)
-        _v = (type(v) == "string") and ("\"" .. _v .. "\"") or _v 
+        _v = (type(v) == "string") and ("\"" .. _v .. "\"") or _v
         str = str .. indenting .. "  [\"" .. tostring(k) .. "\"] = " .. _v .. "," .. ls
       end
     end
@@ -177,7 +177,7 @@ end
 -- @param weightFunc Optional. Returns the weight of an item.
 function _M.randomSubList(list, n, weightFunc)
   weightFunc = weightFunc or _weightFunc
-  
+
   if not n then
     n = list:size()
   else
@@ -194,7 +194,7 @@ function _M.randomSubList(list, n, weightFunc)
     weightsList:push_back({weight=weightFunc(item), item=item})
   end
 
-  weightsList:sort("weight")  
+  weightsList:sort("weight")
 
   local result = _M.List.new()
 

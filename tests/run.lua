@@ -1,5 +1,5 @@
--- Caress, a small framework for games in lua and love.
--- Copyright (C) 2016  Erivaldo Filho "desadoc@gmail.com"
+-- Caress-Lib, a lua library for games.
+-- Copyright (C) 2016, 2017,  Erivaldo Filho "desadoc@gmail.com"
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU Lesser General Public License as published by
@@ -18,13 +18,11 @@ package.path =
   "./extra/luaspec/src/?.lua;./?.lua;./?/init.lua;" ..
   package.path
 
-dofile("caress/tests/tests/example.lua")
-dofile("caress/tests/tests/lib/Vector.lua")
-dofile("caress/tests/tests/lib/text.lua")
-dofile("caress/tests/tests/lib/collection/List.lua")
-dofile("caress/tests/tests/lib/BSP.lua")
-dofile("caress/tests/tests/lib/classes.lua")
-dofile("caress/tests/tests/lib/collision.lua")
-dofile("caress/tests/tests/classes/Object/Entity/Actor.lua")
+dofile("tests/tests/example.lua")
+dofile("tests/tests/lib/Vector.lua")
+dofile("tests/tests/lib/text.lua")
+dofile("tests/tests/lib/collection/List.lua")
+dofile("tests/tests/lib/BSP.lua")
+dofile("tests/tests/lib/classes.lua")
 
 spec:report(true)
