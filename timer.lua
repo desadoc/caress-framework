@@ -14,23 +14,18 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---- Error reporting module.
+--- Time functions module.
 --
--- Functions to log and report unexpected events.
+-- Functions to obtain current clock and measure time.
 --
--- @module error
+-- @module timer
 
 local _M = {}
 
-_M.errhand = function(err) io.stderr:write(err) end
-_M.throw = error
+_M.getTime = os.time
 
-function _M.setErrHandFunction(errhand)
-  _M.errhand = errhand
-end
-
-function _M.setThrowFunction(throw)
-  _M.throw = throw
+function _M.setGetTimeFunction(getTimeFn)
+  _M.getTime = getTimeFn
 end
 
 return _M

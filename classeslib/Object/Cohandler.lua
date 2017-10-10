@@ -25,6 +25,7 @@
 
 local classes   = require("classes")
 local error     = require("error")
+local timer     = require("timer")
 local List      = require("collection").List
 
 local _class = {}
@@ -43,15 +44,7 @@ end
 _class.setFrameTimeLimit()
 
 local function createCoroutine(func)
-  return coroutine.create(function(...)
-    xpcall(
-      func,
-      function(err)
-        print(err .. "\n" .. debug.traceback() .. "\n")
-      end,
-      ...
-    )
-  end)
+  return coroutine.create(func)
 end
 
 function _class:init(func)
@@ -64,6 +57,7 @@ local function __run(cohandler, ...)
   local r1, r2 = coroutine.resume(cohandler.co, ...)
   if not r1 then
     error.errhand(r2)
+    error.throw(r2)
   end
 end
 
@@ -76,7 +70,7 @@ end
 
 function _class:resumeCoroutine(...)
   if self:getStatus() == "suspended" then
-    self.resumeTime = love.timer.getTime()
+    self.resumeTime = timer.getTime()
     __run(self, ...)
   end
 end
@@ -134,7 +128,7 @@ end
 
 --- Returns elapsed time since last time coroutine was resumed.
 function _class:getElapsedTime()
-  return love.timer.getTime() - self.resumeTime
+  return timer.getTime() - self.resumeTime
 end
 
 --- Yields if elapsed time is above limit threshold.
@@ -192,9 +186,9 @@ function _class:event(source, ...)
 
   local eventNames = List.new()
   local cb
-  
+
   local args = {...}
-  
+
   for _, arg in ipairs(args) do
     if type(arg) == "string" then
       eventNames:push_back(arg)
@@ -204,20 +198,20 @@ function _class:event(source, ...)
       break
     end
   end
-  
+
   if eventNames:is_empty() then
     return Condition.EventCondition(self, source, nil, cb)
   end
-  
+
   if eventNames:size() == 1 then
     return Condition.EventCondition(self, source, eventNames:front(), cb)
   end
-  
+
   local conditions = {}
   for _, name in eventNames:iterator() do
-    table_insert(conditions, Condition.EventCondition(self, source, name, cb))  
+    table_insert(conditions, Condition.EventCondition(self, source, name, cb))
   end
-  
+
   return Condition.MultiCondition.OneCondition(self, conditions)
 end
 
@@ -226,7 +220,7 @@ end
 -- for 'key'. Upon resume, returns the key press event.
 function _class:keypress(input, key)
   return Condition.EventCondition(
-    self, input, "input.keypressed",
+    self, input, "keypressed",
     function(evt) if evt.data.key == key then return evt end end
   )
 end
@@ -236,7 +230,7 @@ end
 -- for 'key'. Upon resume, returns the key release event.
 function _class:keyrelease(input, key)
   return Condition.EventCondition(
-    self, input, "input.keyreleased",
+    self, input, "keyreleased",
     function(evt) if evt.data.key == key then return evt end end
   )
 end
@@ -267,7 +261,7 @@ end
 --- Multi condition 'one'.
 -- Returns a condition that is satisfied when at least one condition passed as
 -- parameter is satisfied. Upon resume, returns the returned value from the
--- first satisfied condition. 
+-- first satisfied condition.
 function _class:one(...)
   return Condition.MultiCondition.OneCondition(
     self, processMultiConditionArgs(...)

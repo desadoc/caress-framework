@@ -15,9 +15,8 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local collection  = require("collection")
+local module      = require("module")
 local error       = require("error")
-
-local loadScriptFn = love and love.filesystem.load or loadfile
 
 local _M = {
   __subclasses = collection.List.new()
@@ -35,59 +34,59 @@ local objMt = {
 }
 
 local function __newFn(class, bottom)
-  
+
   local parent = {}
-  
+
   parent.class = class
   parent.__inherCache = class.__inherCache
   parent.__instance = class.__chunk()
   parent.__bottom = bottom
-  
+
   if class.super then
     local super = __newFn(class.super, bottom)
     local supers = super.__supers
-    
+
     table_insert(supers, parent)
-    
+
     parent.__super = super
     parent.__supers = supers
   else
     parent.__supers = {parent}
   end
-  
+
   setmetatable(parent, objMt)
-  
+
   return parent
 end
 
 local function _newFn(class, inplaceTb, ...)
-  
+
   local bottom = inplaceTb or {}
-  
+
   bottom.class = class
   bottom.__inherCache = class.__inherCache
   bottom.__instance = class.__chunk()
   bottom.__bottom = bottom
-  
+
   if class.super then
     local super = __newFn(class.super, bottom)
     local supers = super.__supers
-    
+
     table_insert(supers, bottom)
-    
+
     bottom.__super = super
     bottom.__supers = supers
     bottom.super = super
   else
     bottom.__supers = {bottom}
   end
-  
+
   setmetatable(bottom, objMt)
-  
+
   if bottom.init then
     bottom:init(...)
   end
-  
+
   return bottom
 end
 
@@ -124,18 +123,18 @@ local function anonymousClass(class, chunk)
     newInplace = newInplaceFn,
     isA = isAFn
   }
-  
+
   setmetatable(anonClass, classMt)
-  
+
   _M._cacheInherited(anonClass)
   _M._initStaticMembers(anonClass)
-  
+
   return anonClass
 end
 
 function _M.registerClass(base, classname, script)
   local newClass = {
-    __chunk = loadScriptFn(script .. ".lua"),
+    __chunk = module.load(script .. ".lua"),
     __name = classname,
     getCompleteName = function(self)
       return (rawget(self, "super") and self.super:getCompleteName() or "") .. self.__name
@@ -149,7 +148,7 @@ function _M.registerClass(base, classname, script)
     isA = isAFn,
     AnonClass = anonymousClass
   }
-  
+
   setmetatable(newClass, classMt)
   rawset(base, classname, newClass)
   base.__subclasses:push_back(newClass)
@@ -180,10 +179,10 @@ local superCallObjMt = {
     local base = self.__supers[callObj.__superIndex]
     local f = base.__instance[callObj.__fnName]
     local bottom = self.__bottom
-    
+
     local oldSuper = rawget(bottom, "super")
     bottom.super = rawget(base, "__super")
-    
+
     return superResetter(bottom, oldSuper, f(bottom, ...))
   end
 }
@@ -201,7 +200,7 @@ local function _queryInheritedMethods(class, inherCache)
       inherCache[fnName] = fnClosure
     end
   end
-  
+
   if class.super then
     _queryInheritedMethods(class.super, inherCache)
   end
@@ -217,26 +216,26 @@ local function _queryClassDepth(class)
 end
 
 function _M._cacheInherited(class)
-  
+
   local classTb = class.__chunk()
   local inherCache = {}
   local currDepth = _queryClassDepth(class)
-  
+
   for fnName, fnValue in pairs(classTb) do
     inherCache[fnName] = createSuperCallObj(fnName, currDepth)
   end
-  
+
   if class.super then
     _queryInheritedMethods(class.super, inherCache)
   end
-  
+
   rawset(class, "__inherCache", inherCache)
 end
 
 function _M.cacheInherited()
   local queue = collection.LinkedList.new()
   queue:append(_M.__subclasses)
-  
+
   while not queue:is_empty() do
     local class = queue:remove_front()
     _M._cacheInherited(class)
@@ -249,7 +248,7 @@ function _M._initStaticMembers(class)
   if staticFn then
     class.__static = staticFn()
   end
-  
+
   if rawget(class, "__subclasses") then
     for _, subclass in class.__subclasses:iterator() do
       _M._initStaticMembers(subclass)

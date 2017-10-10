@@ -14,23 +14,29 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---- Error reporting module.
+--- Filesystem functions module.
 --
--- Functions to log and report unexpected events.
+-- Functions to obtain information about files, directories, and manipulate
+-- them.
 --
--- @module error
+-- @module filesystem
 
 local _M = {}
 
-_M.errhand = function(err) io.stderr:write(err) end
-_M.throw = error
+_M.isFile = nil
+_M.isDirectory = nil
+_M.getDirectoryItems = nil
 
-function _M.setErrHandFunction(errhand)
-  _M.errhand = errhand
+function _M.setIsFileFunction(isFileFn)
+  _M.isFile = isFileFn
 end
 
-function _M.setThrowFunction(throw)
-  _M.throw = throw
+function _M.setIsDirectoryFunction(isDirectoryFn)
+  _M.isDirectory = isDirectoryFn
+end
+
+function _M.setGetDirectoryItemsFunction(getDirectoryItemsFn)
+  _M.getDirectoryItems = getDirectoryItemsFn
 end
 
 return _M

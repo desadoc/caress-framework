@@ -67,7 +67,7 @@ function _class:getCoroutines()
   return coroutines
 end
 
-function _class:getListeningList()
+function _class:getListening()
   return listening
 end
 
@@ -104,13 +104,14 @@ function _class:updateCoroutines(dt)
 end
 
 function _class:updateChild(child, dt)
-  if not child:isPaused() and child.update then
-    child:update(dt)
+  local update = child.update
+  if update and not child:isPaused() then
+    update(dt)
   end
 end
 
 function _class:updateChildList(entityList, dt)
-  for iter, child in entityList:iterator() do
+  for _, child in entityList:iterator() do
     self:updateChild(child, dt)
   end
 end
@@ -182,13 +183,14 @@ function _class:isPaused()
 end
 
 function _class:drawChild(child)
-  if not child:isHidden() and child.draw then
-    child:draw()
+  local draw = child.draw
+  if draw and not child:isHidden() then
+    draw()
   end
 end
 
 function _class:drawChildList(childList)
-  for iter, child in childList:iterator() do
+  for _, child in childList:iterator() do
     self:drawChild(child)
   end
 end

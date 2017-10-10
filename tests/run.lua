@@ -24,5 +24,7 @@ dofile("tests/tests/lib/text.lua")
 dofile("tests/tests/lib/collection/List.lua")
 dofile("tests/tests/lib/BSP.lua")
 dofile("tests/tests/lib/classes.lua")
+dofile("tests/tests/classes/Object.lua")
+dofile("tests/tests/classes/Entity.lua")
 
 spec:report(true)

@@ -175,19 +175,19 @@ function _class:emit(arg1, arg2)
   end
 
   evtObj.source = self
-  evtObj.origin = self
+  evtObj.sender = self
 
   self:_emit(evtObj)
 end
 
 --- Reemits an event.
--- When first emitted, both source and origin fields on an event object are
+-- When first emitted, both source and sender fields on an event object are
 -- equals to the object that emitted it. A reemitted event allows other objects
--- to propagate an event. In this case, the origin attribute is set to the
+-- to propagate an event. In this case, the sender attribute is set to the
 -- object that reemitted it.
 -- @param evtObj Event object previously received.
 function _class:reemit(evtObj)
-  evtObj.origin = self
+  evtObj.sender = self
   self:_emit(evtObj)
 end
 

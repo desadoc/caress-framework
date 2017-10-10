@@ -15,20 +15,21 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local collection  = require("collection")
+local filesystem  = require("filesystem")
 local error       = require("error")
 
 local _M = require("classes/core")
 
 local function _loadClassesByDir(classroot, dir, classes)
-  local files = love.filesystem.getDirectoryItems(dir)
+  local files = filesystem.getDirectoryItems(dir)
   local modules = {}
   local subdirs = {}
   for i, v in ipairs(files) do
-    if love.filesystem.isFile(dir .. "/" .. v) and
+    if filesystem.isFile(dir .. "/" .. v) and
       string.sub(v,-4) == '.lua' then
       modules[string.sub(v,1,-5)] = true
     end
-    if love.filesystem.isDirectory(dir .. "/" .. v) then
+    if filesystem.isDirectory(dir .. "/" .. v) then
       subdirs[v] = true
     end
   end

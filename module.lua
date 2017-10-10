@@ -14,23 +14,18 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---- Error reporting module.
+--- Module loading module.
 --
--- Functions to log and report unexpected events.
+-- Functions to load lua files and modules.
 --
--- @module error
+-- @module module
 
 local _M = {}
 
-_M.errhand = function(err) io.stderr:write(err) end
-_M.throw = error
+_M.load = loadfile
 
-function _M.setErrHandFunction(errhand)
-  _M.errhand = errhand
-end
-
-function _M.setThrowFunction(throw)
-  _M.throw = throw
+function _M.setTimeFunction(loadFn)
+  _M.load = loadFn
 end
 
 return _M

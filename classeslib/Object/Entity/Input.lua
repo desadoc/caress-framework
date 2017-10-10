@@ -30,6 +30,7 @@
 --
 -- @classmod Object.Entity.Input
 
+local keyboard      = require("keyboard")
 local collection    = require("collection")
 
 local _class = {}
@@ -128,7 +129,7 @@ function _class:isDown(key)
 
   local keyboardKey = mapping.keyboard[key]
   if keyboardKey then
-    keyboardDown = love.keyboard.isDown(keyboardKey)
+    keyboardDown = keyboard.isDown(keyboardKey)
   end
 
   return gamepadDown or keyboardDown

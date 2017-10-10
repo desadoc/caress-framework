@@ -14,23 +14,18 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---- Error reporting module.
+--- Keyboard functions module.
 --
--- Functions to log and report unexpected events.
+-- Functions to obtain keyboard status and events.
 --
--- @module error
+-- @module keyboard
 
 local _M = {}
 
-_M.errhand = function(err) io.stderr:write(err) end
-_M.throw = error
+_M.isDown = nil
 
-function _M.setErrHandFunction(errhand)
-  _M.errhand = errhand
-end
-
-function _M.setThrowFunction(throw)
-  _M.throw = throw
+function _M.setIsDownFunction(isDownFn)
+  _M.isDown = isDownFn
 end
 
 return _M
