@@ -19,15 +19,15 @@ local luaspec = require("luaspec")
 describe["Entity"] = function()
   before = function()
     Classes = require("classes")
-    Classes.registerClass(Classes, "Object", "classeslib/Object")
-    Classes.registerClass(Classes.Object, "Entity", "classeslib/Object/Entity")
-    Classes.registerClass(
+    Classes.register(Classes, "Object", "classeslib/Object")
+    Classes.register(Classes.Object, "Entity", "classeslib/Object/Entity")
+    Classes.register(
       Classes.Object, "Cohandler", "classeslib/Object/Cohandler"
     )
-    Classes.registerClass(
+    Classes.register(
       Classes.Object, "Condition", "classeslib/Object/Condition"
     )
-    Classes.registerClass(
+    Classes.register(
       Classes.Object.Condition, "EventCondition",
       "classeslib/Object/Condition/EventCondition"
     )

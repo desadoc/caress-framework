@@ -19,7 +19,7 @@ local luaspec = require("luaspec")
 describe["Object"] = function()
   before = function()
     Classes = require("classes")
-    Classes.registerClass(Classes, "Object", "classeslib/Object")
+    Classes.register(Classes, "Object", "classeslib/Object")
     Classes:finish()
   end
 

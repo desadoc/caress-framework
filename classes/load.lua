@@ -20,7 +20,7 @@ local error       = require("error")
 
 local _M = require("classes/core")
 
-local function _loadClassesByDir(classroot, dir, classes)
+local function _loadClassesByDir(classroot, dir)
   local files = filesystem.getDirectoryItems(dir)
   local modules = {}
   local subdirs = {}
@@ -36,7 +36,7 @@ local function _loadClassesByDir(classroot, dir, classes)
 
   for k, v in pairs(subdirs) do
     if not rawget(classroot, k) and not modules[k] then
-      _M.registerClassFolder(classroot, k)
+      _M.registerFolder(classroot, k)
       subdirs[k] = false
     end
   end
@@ -48,15 +48,14 @@ local function _loadClassesByDir(classroot, dir, classes)
       error.errhand("duplicate class definition found for \"" ..
         classroot:getCompleteName() .. "." .. k .. "\"")
     end
-    _M.registerClass(classroot, k, dir .. "/" .. k)
-    classes:push_back(classroot[k])
+    _M.register(classroot, k, dir .. "/" .. k)
   end
 
   -- recursively add subdirectories
   for k, v in pairs(subdirs) do
     -- subdirs that have a module with same name use it as base class,
     -- other dirs inherit current root
-    _loadClassesByDir(classroot[k], dir .. "/" .. k, classes)
+    _loadClassesByDir(classroot[k], dir .. "/" .. k)
   end
 end
 
@@ -67,9 +66,8 @@ end
 -- loaded in this or previous calls.
 -- @param classroot Root class for this dir or this module itself.
 -- @param dir Folder path.
-function _M.loadClassesByDir(classroot, dir)
-  local classes = collection.List.new()
-  _loadClassesByDir(classroot, dir, classes)
+function _M.loadClassesByDir(dir)
+  _loadClassesByDir(_M, dir)
 end
 
 return _M

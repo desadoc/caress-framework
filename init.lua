@@ -14,29 +14,22 @@
 -- You should have received a copy of the GNU Lesser General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package.path =
-  "./?.lua;./?/init.lua;" .. package.path
+--- Top module.
+--
+-- Meta module that loads all submodules.
+--
+-- @module caress
 
-local classes = require("classes")
 
-classes.register(classes, "A", "tests/classes/A")
-classes.register(classes.A, "B", "tests/classes/A/B")
-classes.register(classes.A, "C", "tests/classes/A/C")
-classes.register(classes.A.C, "E", "tests/classes/A/C/E")
+local _M = {}
 
-if classes.finish then
-  classes.finish()
-end
+_M.classes    = require("classes")
+_M.error      = require("error")
+_M.filesystem = require("filesystem")
+_M.geom       = require("geom")
+_M.keyboard   = require("keyboard")
+_M.module     = require("module")
+_M.text       = require("text")
+_M.timer      = require("timer")
 
-local table_insert = table.insert
-
-local b = classes.A.B:new()
-local c = classes.A.C:new()
-local e = classes.A.C.E:new()
-
-local n = 300*1000*1000
-
-local c_super = c.super
-for i=1,n do
-  c_super:foo4()
-end
+return _M

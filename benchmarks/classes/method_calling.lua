@@ -19,9 +19,9 @@ package.path =
 
 local classes = require("classes")
 
-classes.registerClass(classes, "A", "tests/classes/A")
-classes.registerClass(classes.A, "B", "tests/classes/A/B")
-classes.registerClass(classes.A, "C", "tests/classes/A/C")
+classes.register(classes, "A", "tests/classes/A")
+classes.register(classes.A, "B", "tests/classes/A/B")
+classes.register(classes.A, "C", "tests/classes/A/C")
 
 if classes.finish then
   classes.finish()

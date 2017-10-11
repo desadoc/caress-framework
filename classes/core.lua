@@ -132,7 +132,7 @@ local function anonymousClass(class, chunk)
   return anonClass
 end
 
-function _M.registerClass(base, classname, script)
+function _M.register(base, classname, script)
   local newClass = {
     __chunk = module.load(script .. ".lua"),
     __name = classname,
@@ -154,7 +154,7 @@ function _M.registerClass(base, classname, script)
   base.__subclasses:push_back(newClass)
 end
 
-function _M.registerClassFolder(base, name)
+function _M.registerFolder(base, name)
   local newFolder = {
     __name = name,
     __static = {},

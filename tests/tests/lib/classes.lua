@@ -20,11 +20,11 @@ describe["classes"] = function()
   before = function()
     Classes = require("classes")
 
-    Classes.registerClass(Classes, "A", "tests/classes/A")
-    Classes.registerClass(Classes.A, "B", "tests/classes/A/B")
-    Classes.registerClass(Classes.A, "C", "tests/classes/A/C")
-    Classes.registerClass(Classes, "D", "tests/classes/D")
-    Classes.registerClass(Classes.A.C, "E", "tests/classes/A/C/E")
+    Classes.register(Classes, "A", "tests/classes/A")
+    Classes.register(Classes.A, "B", "tests/classes/A/B")
+    Classes.register(Classes.A, "C", "tests/classes/A/C")
+    Classes.register(Classes, "D", "tests/classes/D")
+    Classes.register(Classes.A.C, "E", "tests/classes/A/C/E")
 
     Classes:finish()
   end
